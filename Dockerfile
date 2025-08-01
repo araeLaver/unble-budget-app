@@ -22,8 +22,14 @@ COPY src/ src/
 # Build the application
 RUN mvn clean package -DskipTests
 
+# List files to debug
+RUN ls -la target/
+
+# Copy JAR to a known location
+RUN cp target/*.jar app.jar
+
 # Expose port 8080
 EXPOSE 8080
 
 # Run the application
-CMD ["java", "-jar", "target/unble-budget-0.0.1-SNAPSHOT.jar", "--spring.profiles.active=prod"]
+CMD ["java", "-jar", "app.jar", "--spring.profiles.active=prod"]
