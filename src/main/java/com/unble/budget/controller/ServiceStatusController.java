@@ -78,6 +78,15 @@ public class ServiceStatusController {
         return ResponseEntity.ok(status);
     }
     
+    @GetMapping("/")
+    public ResponseEntity<Map<String, String>> getRootStatus() {
+        Map<String, String> response = new HashMap<>();
+        response.put("service", "Unble Budget App");
+        response.put("status", "UP");
+        response.put("message", "Service is running");
+        return ResponseEntity.ok(response);
+    }
+    
     @GetMapping("/health")
     public ResponseEntity<Map<String, String>> getHealthCheck() {
         Map<String, String> health = new HashMap<>();
