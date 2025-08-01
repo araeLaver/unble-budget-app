@@ -25,8 +25,17 @@ RUN mvn clean package -DskipTests
 # List files to debug
 RUN ls -la target/
 
-# Copy JAR to a known location
-RUN cp target/*.jar app.jar
+# Find and copy the JAR file (handle both possible names)
+RUN if [ -f target/unble-budget-app-1.0.0.jar ]; then \
+        cp target/unble-budget-app-1.0.0.jar app.jar; \
+    elif [ -f target/unble-budget-0.0.1-SNAPSHOT.jar ]; then \
+        cp target/unble-budget-0.0.1-SNAPSHOT.jar app.jar; \
+    else \
+        cp target/*.jar app.jar; \
+    fi
+
+# Verify the JAR file exists
+RUN ls -la app.jar
 
 # Expose port 8080
 EXPOSE 8080
