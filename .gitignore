@@ -1,0 +1,65 @@
+# Compiled class files
+*.class
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+
+# IDE
+.vscode/
+.idea/
+*.iml
+*.iws
+*.ipr
+.settings/
+.classpath
+.project
+.metadata/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# H2 Database
+*.db
+*.mv.db
+*.trace.db
+
+# Node modules (if using frontend build tools)
+node_modules/
+package-lock.json
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~.nib
+
+# Spring Boot
+application-local.properties
+
+# Database connection files with sensitive info
+# (Keep application-dev.properties and application-prod.properties as they contain deployment configs)
+
+# Servers directory
+Servers/
+
+# Build outputs
+build/
+out/
+
+# Claude files
+.claude/
+
+# Problematic files
+nul

@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>앱 정보 - Unble Budget</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .info-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .card-content {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+
+        .feature-list li::before {
+            content: "✓";
+            color: #27ae60;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #27ae60;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50px;
+            padding: 12px 25px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .cta-section {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .cta-btn {
+            display: inline-block;
+            background: white;
+            color: #27ae60;
+            padding: 15px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .back-btn {
+                position: static;
+                display: block;
+                margin: 0 auto 20px;
+                width: fit-content;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="javascript:history.back()" class="back-btn">← 돌아가기</a>
+    
+    <div class="container">
+        <div class="header">
+            <h1>💰 Unble</h1>
+            <p>스마트 가계부 관리 서비스</p>
+        </div>
+
+        <div class="info-grid">
+            <!-- 서비스 소개 -->
+            <div class="info-card">
+                <div class="card-header">
+                    <div class="card-icon">🚀</div>
+                    <div class="card-title">서비스 소개</div>
+                </div>
+                <div class="card-content">
+                    <p>Unble은 개인과 가족의 재정을 체계적으로 관리할 수 있는 혁신적인 가계부 앱입니다. 
+                    간편한 인터페이스와 강력한 분석 기능으로 당신의 경제생활을 더 스마트하게 만들어드립니다.</p>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number" id="totalUsers">-</div>
+                            <div class="stat-label">활성 사용자</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="totalCategories">23</div>
+                            <div class="stat-label">기본 카테고리</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 주요 기능 -->
+            <div class="info-card">
+                <div class="card-header">
+                    <div class="card-icon">⭐</div>
+                    <div class="card-title">주요 기능</div>
+                </div>
+                <div class="card-content">
+                    <ul class="feature-list">
+                        <li>수입/지출 거래 관리</li>
+                        <li>자산 현황 실시간 추적</li>
+                        <li>23개 다양한 카테고리</li>
+                        <li>월별 요약 통계</li>
+                        <li>거래 내역 검색 및 필터링</li>
+                        <li>반응형 웹 디자인</li>
+                        <li>안전한 데이터 보호</li>
+                        <li>실시간 데이터 동기화</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 기술 정보 -->
+            <div class="info-card">
+                <div class="card-header">
+                    <div class="card-icon">⚙️</div>
+                    <div class="card-title">기술 정보</div>
+                </div>
+                <div class="card-content">
+                    <p><strong>프론트엔드:</strong> HTML5, CSS3, Vanilla JavaScript</p>
+                    <p><strong>백엔드:</strong> Spring Boot 3.2.0, Java 17</p>
+                    <p><strong>데이터베이스:</strong> PostgreSQL</p>
+                    <p><strong>보안:</strong> JWT 토큰 기반 인증</p>
+                    <p><strong>버전:</strong> v1.0.0</p>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number" id="serverStatus">🟢</div>
+                            <div class="stat-label">서버 상태</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="dbStatus">🟢</div>
+                            <div class="stat-label">DB 상태</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 카테고리 -->
+            <div class="info-card">
+                <div class="card-header">
+                    <div class="card-icon">🏷️</div>
+                    <div class="card-title">관리 카테고리</div>
+                </div>
+                <div class="card-content">
+                    <p><strong>자산 관리 (5개):</strong></p>
+                    <p>💰 현금, 🏦 은행예금, 💎 적금, 📈 투자, 💳 카드잔액</p>
+                    
+                    <p style="margin-top: 15px;"><strong>지출 관리 (10개):</strong></p>
+                    <p>🍽️ 식비, 🚗 교통비, 🛒 생활용품, 🏥 의료비, 🎬 문화생활<br>
+                    📱 통신비, 🏠 주거비, 🛡️ 보험료, 📚 교육비, 💸 기타지출</p>
+                    
+                    <p style="margin-top: 15px;"><strong>수입 관리 (4개):</strong></p>
+                    <p>💼 급여, 💻 부업, 📊 투자수익, 💰 기타수입</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="cta-section">
+            <a href="/index.html" class="cta-btn">지금 시작하기 →</a>
+        </div>
+    </div>
+
+    <script>
+        // 기본 통계 정보 로드
+        fetch('/api/status')
+            .then(response => response.json())
+            .then(data => {
+                // 활성 사용자 수 표시
+                if (data.statistics && data.statistics.active_users) {
+                    document.getElementById('totalUsers').textContent = data.statistics.active_users;
+                }
+                
+                // 서버 상태
+                if (data.status === 'RUNNING') {
+                    document.getElementById('serverStatus').textContent = '🟢';
+                } else {
+                    document.getElementById('serverStatus').textContent = '🔴';
+                }
+                
+                // DB 상태
+                if (data.database && data.database.status === 'CONNECTED') {
+                    document.getElementById('dbStatus').textContent = '🟢';
+                } else {
+                    document.getElementById('dbStatus').textContent = '🔴';
+                }
+            })
+            .catch(error => {
+                console.log('정보를 불러올 수 없습니다:', error);
+                document.getElementById('totalUsers').textContent = '사용자';
+                document.getElementById('serverStatus').textContent = '🔴';
+                document.getElementById('dbStatus').textContent = '🔴';
+            });
+    </script>
+</body>
+</html>

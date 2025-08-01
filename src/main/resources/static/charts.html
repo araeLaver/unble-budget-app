@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unble - 거래 차트</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/index.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        .nav-btn {
+            padding: 12px 24px;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .nav-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .nav-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            text-align: center;
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .back-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #5a6268;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+
+        .date-picker {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .date-input {
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .date-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .error {
+            text-align: center;
+            padding: 40px;
+            color: #dc3545;
+            background: #f8d7da;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 거래 차트</h1>
+            <button class="back-btn" onclick="goBack()">← 메인으로 돌아가기</button>
+        </div>
+
+        <div class="nav-buttons">
+            <button class="nav-btn active" onclick="showChart('monthly')">월별 추이</button>
+            <button class="nav-btn" onclick="showChart('category')">카테고리별</button>
+            <button class="nav-btn" onclick="showChart('daily')">일별 분석</button>
+        </div>
+
+        <div class="date-picker" id="datePicker" style="display: none;">
+            <label>기간 선택:</label>
+            <input type="month" id="startMonth" class="date-input" onchange="updateChart()">
+            <span>~</span>
+            <input type="month" id="endMonth" class="date-input" onchange="updateChart()">
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-title" id="chartTitle">월별 수입/지출 추이</div>
+            <div class="chart-wrapper">
+                <canvas id="mainChart"></canvas>
+            </div>
+            <div class="loading" id="loading">차트 데이터를 불러오는 중...</div>
+            <div class="error" id="error" style="display: none;"></div>
+        </div>
+
+        <div class="stats-grid" id="statsGrid">
+            <!-- 통계 정보가 여기에 표시됩니다 -->
+        </div>
+    </div>
+
+    <script>
+        let authToken = localStorage.getItem('authToken');
+        let currentChart = null;
+        let currentType = 'monthly';
+
+        if (!authToken) {
+            alert('로그인이 필요합니다.');
+            window.location.href = 'index.html';
+        }
+
+        // 초기 차트 로드
+        document.addEventListener('DOMContentLoaded', function() {
+            showChart('monthly');
+        });
+
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+
+        function showChart(type) {
+            currentType = type;
+            
+            // 네비게이션 버튼 활성화
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // 날짜 선택기 표시/숨김
+            const datePicker = document.getElementById('datePicker');
+            if (type === 'monthly') {
+                datePicker.style.display = 'flex';
+                setDefaultDateRange();
+            } else {
+                datePicker.style.display = 'none';
+            }
+
+            loadChartData(type);
+        }
+
+        function setDefaultDateRange() {
+            const now = new Date();
+            const startMonth = new Date(now.getFullYear() - 1, now.getMonth(), 1);
+            const endMonth = now;
+
+            document.getElementById('startMonth').value = formatDateToMonth(startMonth);
+            document.getElementById('endMonth').value = formatDateToMonth(endMonth);
+        }
+
+        function formatDateToMonth(date) {
+            return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
+        }
+
+        function updateChart() {
+            if (currentType === 'monthly') {
+                loadChartData('monthly');
+            }
+        }
+
+        async function loadChartData(type) {
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const chartTitle = document.getElementById('chartTitle');
+            
+            loading.style.display = 'block';
+            error.style.display = 'none';
+
+            try {
+                const response = await fetch(`/api/transactions/chart-data?type=${type}`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('차트 데이터를 불러올 수 없습니다.');
+                }
+
+                const data = await response.json();
+                loading.style.display = 'none';
+
+                // 차트 제목 설정
+                const titles = {
+                    'monthly': '월별 수입/지출 추이',
+                    'category': '이번 달 카테고리별 지출',
+                    'daily': '이번 달 일별 거래 현황'
+                };
+                chartTitle.textContent = titles[type];
+
+                // 차트 그리기
+                drawChart(data);
+                updateStats(data);
+
+            } catch (err) {
+                loading.style.display = 'none';
+                error.style.display = 'block';
+                error.textContent = err.message;
+            }
+        }
+
+        function drawChart(data) {
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            
+            if (currentChart) {
+                currentChart.destroy();
+            }
+
+            const chartData = data.data || [];
+            
+            if (data.type === 'monthly') {
+                drawMonthlyChart(ctx, chartData);
+            } else if (data.type === 'category') {
+                drawCategoryChart(ctx, chartData);
+            } else if (data.type === 'daily') {
+                drawDailyChart(ctx, chartData);
+            }
+        }
+
+        function drawMonthlyChart(ctx, data) {
+            const months = [...new Set(data.map(item => item.month))].sort();
+            const incomeData = months.map(month => {
+                const item = data.find(d => d.month === month && d.type === 'INCOME');
+                return item ? parseFloat(item.amount) : 0;
+            });
+            const expenseData = months.map(month => {
+                const item = data.find(d => d.month === month && d.type === 'EXPENSE');
+                return item ? parseFloat(item.amount) : 0;
+            });
+
+            currentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: '수입',
+                        data: incomeData,
+                        borderColor: '#28a745',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: '지출',
+                        data: expenseData,
+                        borderColor: '#dc3545',
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₩' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function drawCategoryChart(ctx, data) {
+            const labels = data.map(item => item.category);
+            const amounts = data.map(item => parseFloat(item.amount));
+            const colors = data.map(item => item.color || '#667eea');
+
+            currentChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: amounts,
+                        backgroundColor: colors,
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                generateLabels: function(chart) {
+                                    const data = chart.data;
+                                    return data.labels.map((label, i) => ({
+                                        text: `${label}: ₩${data.datasets[0].data[i].toLocaleString()}`,
+                                        fillStyle: data.datasets[0].backgroundColor[i],
+                                        strokeStyle: data.datasets[0].backgroundColor[i],
+                                        lineWidth: 0,
+                                        hidden: false,
+                                        index: i
+                                    }));
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function drawDailyChart(ctx, data) {
+            const labels = data.map(item => {
+                const date = new Date(item.date);
+                return `${date.getMonth() + 1}/${date.getDate()}`;
+            });
+            const incomeData = data.map(item => parseFloat(item.income));
+            const expenseData = data.map(item => parseFloat(item.expense));
+
+            currentChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '수입',
+                        data: incomeData,
+                        backgroundColor: 'rgba(40, 167, 69, 0.8)',
+                        borderColor: '#28a745',
+                        borderWidth: 1
+                    }, {
+                        label: '지출',
+                        data: expenseData,
+                        backgroundColor: 'rgba(220, 53, 69, 0.8)',
+                        borderColor: '#dc3545',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₩' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateStats(data) {
+            const statsGrid = document.getElementById('statsGrid');
+            const chartData = data.data || [];
+            
+            let statsHtml = '';
+            
+            if (data.type === 'monthly') {
+                const totalIncome = chartData
+                    .filter(item => item.type === 'INCOME')
+                    .reduce((sum, item) => sum + parseFloat(item.amount), 0);
+                const totalExpense = chartData
+                    .filter(item => item.type === 'EXPENSE')
+                    .reduce((sum, item) => sum + parseFloat(item.amount), 0);
+                const netAmount = totalIncome - totalExpense;
+                
+                statsHtml = `
+                    <div class="stat-card">
+                        <div class="stat-value">₩${totalIncome.toLocaleString()}</div>
+                        <div class="stat-label">총 수입</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">₩${totalExpense.toLocaleString()}</div>
+                        <div class="stat-label">총 지출</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" style="color: ${netAmount >= 0 ? '#28a745' : '#dc3545'}">
+                            ₩${netAmount.toLocaleString()}
+                        </div>
+                        <div class="stat-label">순 수익</div>
+                    </div>
+                `;
+            } else if (data.type === 'category') {
+                const totalExpense = chartData.reduce((sum, item) => sum + parseFloat(item.amount), 0);
+                const topCategory = chartData.length > 0 ? chartData[0] : null;
+                const categoryCount = chartData.length;
+                
+                statsHtml = `
+                    <div class="stat-card">
+                        <div class="stat-value">₩${totalExpense.toLocaleString()}</div>
+                        <div class="stat-label">총 지출</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${categoryCount}개</div>
+                        <div class="stat-label">지출 카테고리</div>
+                    </div>
+                    ${topCategory ? `
+                    <div class="stat-card">
+                        <div class="stat-value">${topCategory.category}</div>
+                        <div class="stat-label">최대 지출 카테고리</div>
+                    </div>
+                    ` : ''}
+                `;
+            } else if (data.type === 'daily') {
+                const totalIncome = chartData.reduce((sum, item) => sum + parseFloat(item.income), 0);
+                const totalExpense = chartData.reduce((sum, item) => sum + parseFloat(item.expense), 0);
+                const avgDaily = chartData.length > 0 ? totalExpense / chartData.length : 0;
+                
+                statsHtml = `
+                    <div class="stat-card">
+                        <div class="stat-value">₩${totalIncome.toLocaleString()}</div>
+                        <div class="stat-label">이번 달 수입</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">₩${totalExpense.toLocaleString()}</div>
+                        <div class="stat-label">이번 달 지출</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">₩${avgDaily.toLocaleString()}</div>
+                        <div class="stat-label">일평균 지출</div>
+                    </div>
+                `;
+            }
+            
+            statsGrid.innerHTML = statsHtml;
+        }
+    </script>
+</body>
+</html>
