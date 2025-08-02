@@ -40,5 +40,5 @@ RUN ls -la app.jar
 # Expose port 8080
 EXPOSE 8080
 
-# Run the application
-CMD ["java", "-jar", "app.jar", "--spring.profiles.active=prod"]
+# Run the application with optimized JVM settings
+CMD ["java", "-Xms256m", "-Xmx512m", "-XX:+UseG1GC", "-XX:MaxGCPauseMillis=200", "-jar", "app.jar", "--spring.profiles.active=prod"]
