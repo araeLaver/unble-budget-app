@@ -1,11 +1,5 @@
-# Use OpenJDK 17 and install Maven
-FROM openjdk:17-jdk-slim
-
-# Install Maven
-RUN apt-get update && \
-    apt-get install -y maven && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# Multi-stage build for smaller image
+FROM maven:3.8.6-openjdk-17-slim AS builder
 
 # Set working directory
 WORKDIR /app
@@ -37,8 +31,14 @@ RUN if [ -f target/unble-budget-app-1.0.0.jar ]; then \
 # Verify the JAR file exists
 RUN ls -la app.jar
 
+# Use smaller runtime image
+FROM openjdk:17-jre-slim
+
+# Copy JAR from builder stage
+COPY --from=builder /app/app.jar /app.jar
+
 # Expose port 8080
 EXPOSE 8080
 
 # Run the application optimized for 256MB RAM instance  
-CMD ["java", "-Xmx100m", "-Xms50m", "-XX:+UseSerialGC", "-XX:MaxMetaspaceSize=48m", "-XX:CompressedClassSpaceSize=8m", "-XX:ReservedCodeCacheSize=8m", "-XX:MaxDirectMemorySize=10m", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseStringDeduplication", "-jar", "app.jar", "--spring.profiles.active=prod"]
+CMD ["java", "-Xmx80m", "-Xms40m", "-XX:+UseSerialGC", "-XX:MaxMetaspaceSize=40m", "-XX:CompressedClassSpaceSize=6m", "-XX:ReservedCodeCacheSize=6m", "-XX:MaxDirectMemorySize=8m", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseStringDeduplication", "-Djava.security.egd=file:/dev/./urandom", "-noverify", "-jar", "app.jar", "--spring.profiles.active=prod"]
