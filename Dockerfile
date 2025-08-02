@@ -40,5 +40,5 @@ COPY --from=builder /app/app.jar /app.jar
 # Expose port 8080
 EXPOSE 8080
 
-# Run the application optimized for 256MB RAM instance  
-CMD ["java", "-Xmx96m", "-Xms48m", "-XX:+UseSerialGC", "-XX:MaxMetaspaceSize=80m", "-XX:MetaspaceSize=32m", "-XX:MinMetaspaceFreeRatio=5", "-XX:MaxMetaspaceFreeRatio=10", "-XX:+UseContainerSupport", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap", "-Djava.security.egd=file:/dev/./urandom", "-jar", "app.jar", "--spring.profiles.active=prod"]
+# Run the application optimized for larger instance  
+CMD ["java", "-Xmx200m", "-Xms100m", "-XX:+UseSerialGC", "-XX:MaxMetaspaceSize=128m", "-XX:MetaspaceSize=64m", "-XX:+UseContainerSupport", "-Djava.security.egd=file:/dev/./urandom", "-jar", "app.jar", "--spring.profiles.active=prod"]
