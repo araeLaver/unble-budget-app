@@ -41,4 +41,4 @@ COPY --from=builder /app/app.jar /app.jar
 EXPOSE 8080
 
 # Run the application optimized for 256MB RAM instance  
-CMD ["java", "-Xmx120m", "-Xms60m", "-XX:+UseSerialGC", "-XX:MaxMetaspaceSize=64m", "-XX:+UseContainerSupport", "-Djava.security.egd=file:/dev/./urandom", "-jar", "app.jar", "--spring.profiles.active=prod"]
+CMD ["java", "-Xmx96m", "-Xms48m", "-XX:+UseSerialGC", "-XX:MaxMetaspaceSize=80m", "-XX:MetaspaceSize=32m", "-XX:MinMetaspaceFreeRatio=5", "-XX:MaxMetaspaceFreeRatio=10", "-XX:+UseContainerSupport", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap", "-Djava.security.egd=file:/dev/./urandom", "-jar", "app.jar", "--spring.profiles.active=prod"]
