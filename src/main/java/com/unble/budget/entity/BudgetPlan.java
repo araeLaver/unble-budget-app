@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "budget_plans", schema = "unble_dev", 
+@Table(name = "budget_plans", 
        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "category_id", "budget_month"}))
 public class BudgetPlan {
     @Id

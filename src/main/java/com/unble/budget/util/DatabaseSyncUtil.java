@@ -2,6 +2,7 @@ package com.unble.budget.util;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,7 @@ import java.util.Map;
  */
 @Component
 @Order(1)
+@Profile("prod")
 public class DatabaseSyncUtil implements CommandLineRunner {
 
     @Autowired
