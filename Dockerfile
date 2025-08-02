@@ -1,5 +1,5 @@
 # Multi-stage build for smaller image
-FROM maven:3.8.6-openjdk-17-slim AS builder
+FROM maven:3.9-eclipse-temurin-17-alpine AS builder
 
 # Set working directory
 WORKDIR /app
@@ -32,7 +32,7 @@ RUN if [ -f target/unble-budget-app-1.0.0.jar ]; then \
 RUN ls -la app.jar
 
 # Use smaller runtime image
-FROM openjdk:17-jre-slim
+FROM eclipse-temurin:17-jre-alpine
 
 # Copy JAR from builder stage
 COPY --from=builder /app/app.jar /app.jar
