@@ -41,4 +41,4 @@ RUN ls -la app.jar
 EXPOSE 8080
 
 # Run the application optimized for 256MB RAM instance  
-CMD ["java", "-Xmx128m", "-XX:+UseSerialGC", "-XX:MaxRAMPercentage=50", "-XX:MaxMetaspaceSize=64m", "-jar", "app.jar", "--spring.profiles.active=prod"]
+CMD ["java", "-Xmx100m", "-Xms50m", "-XX:+UseSerialGC", "-XX:MaxMetaspaceSize=48m", "-XX:CompressedClassSpaceSize=8m", "-XX:ReservedCodeCacheSize=8m", "-XX:MaxDirectMemorySize=10m", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseStringDeduplication", "-jar", "app.jar", "--spring.profiles.active=prod"]
