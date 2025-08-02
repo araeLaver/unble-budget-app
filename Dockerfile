@@ -40,5 +40,5 @@ RUN ls -la app.jar
 # Expose port 8080
 EXPOSE 8080
 
-# Run the application with minimal memory settings for Koyeb free tier
-CMD ["java", "-Xmx256m", "-XX:+UseSerialGC", "-XX:MaxRAM=256m", "-jar", "app.jar", "--spring.profiles.active=prod"]
+# Run the application optimized for 256MB RAM instance  
+CMD ["java", "-Xmx128m", "-XX:+UseSerialGC", "-XX:MaxRAMPercentage=50", "-XX:MaxMetaspaceSize=64m", "-jar", "app.jar", "--spring.profiles.active=prod"]
