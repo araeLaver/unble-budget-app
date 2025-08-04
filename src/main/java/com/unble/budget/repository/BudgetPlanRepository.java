@@ -39,4 +39,6 @@ public interface BudgetPlanRepository extends JpaRepository<BudgetPlan, Long> {
            "WHERE bp.user = :user AND bp.budgetMonth = :budgetMonth")
     java.math.BigDecimal getTotalActualAmountForMonth(@Param("user") User user, 
                                                       @Param("budgetMonth") LocalDate budgetMonth);
+    
+    Optional<BudgetPlan> findByIdAndUser(Long id, User user);
 }

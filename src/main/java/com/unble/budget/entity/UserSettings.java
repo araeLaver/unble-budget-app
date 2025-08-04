@@ -25,6 +25,12 @@ public class UserSettings {
 
     @Column(name = "notification_enabled")
     private Boolean notificationEnabled = true;
+    
+    @Column(length = 10)
+    private String language = "ko";
+    
+    @Column(name = "number_format", length = 20)
+    private String numberFormat = "#,##0";
 
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -56,6 +62,12 @@ public class UserSettings {
 
     public Boolean getNotificationEnabled() { return notificationEnabled; }
     public void setNotificationEnabled(Boolean notificationEnabled) { this.notificationEnabled = notificationEnabled; }
+    
+    public String getLanguage() { return language; }
+    public void setLanguage(String language) { this.language = language; }
+    
+    public String getNumberFormat() { return numberFormat; }
+    public void setNumberFormat(String numberFormat) { this.numberFormat = numberFormat; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

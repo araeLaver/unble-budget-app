@@ -69,8 +69,8 @@ public class TransactionService {
             
             // 거래 유형 검증 및 설정
             String transactionType = request.getTransactionType().trim().toUpperCase();
-            if (!"INCOME".equals(transactionType) && !"EXPENSE".equals(transactionType)) {
-                throw new RuntimeException("거래 유형은 INCOME 또는 EXPENSE여야 합니다");
+            if (!"INCOME".equals(transactionType) && !"EXPENSE".equals(transactionType) && !"ASSET".equals(transactionType)) {
+                throw new RuntimeException("거래 유형은 INCOME, EXPENSE 또는 ASSET이어야 합니다");
             }
             
             transaction.setTransactionType(Transaction.TransactionType.valueOf(transactionType));
@@ -84,6 +84,56 @@ public class TransactionService {
         } catch (RuntimeException e) {
             System.err.println("거래 생성 검증 오류: " + e.getMessage());
             throw e; // 검증 오류는 그대로 전달
+        } catch (Exception e) {
+            System.err.println("거래 생성 시스템 오류: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("거래 생성 중 시스템 오류가 발생했습니다");
+        }
+    }
+    
+    // User 객체를 받는 오버로드 메서드 추가
+    public TransactionResponse createTransaction(User user, TransactionRequest request) {
+        try {
+            System.out.println("거래 생성 시작 - 사용자 ID: " + user.getId());
+            System.out.println("요청 데이터: " + request.toString());
+            
+            // 입력 데이터 검증
+            if (request.getAmount() == null || request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+                throw new RuntimeException("금액은 0보다 커야 합니다");
+            }
+            
+            if (request.getTransactionType() == null || request.getTransactionType().trim().isEmpty()) {
+                throw new RuntimeException("거래 유형을 선택해주세요");
+            }
+            
+            // 거래 유형 검증
+            String transactionType = request.getTransactionType().trim().toUpperCase();
+            if (!"INCOME".equals(transactionType) && !"EXPENSE".equals(transactionType) && !"ASSET".equals(transactionType)) {
+                throw new RuntimeException("거래 유형은 INCOME, EXPENSE 또는 ASSET이어야 합니다");
+            }
+            
+            if (request.getTransactionDate() == null) {
+                request.setTransactionDate(LocalDate.now());
+            }
+            
+            Category category = categoryRepository.findById(request.getCategoryId())
+                    .orElseThrow(() -> new RuntimeException("유효하지 않은 카테고리입니다"));
+            
+            Transaction transaction = new Transaction();
+            transaction.setUser(user);
+            transaction.setCategory(category);
+            transaction.setAmount(request.getAmount());
+            transaction.setDescription(request.getDescription());
+            transaction.setTransactionType(Transaction.TransactionType.valueOf(transactionType));
+            transaction.setTransactionDate(request.getTransactionDate());
+            
+            Transaction saved = transactionRepository.save(transaction);
+            System.out.println("거래 저장 완료 - ID: " + saved.getId());
+            
+            return new TransactionResponse(saved);
+        } catch (RuntimeException e) {
+            System.err.println("거래 생성 검증 오류: " + e.getMessage());
+            throw e;
         } catch (Exception e) {
             System.err.println("거래 생성 시스템 오류: " + e.getMessage());
             e.printStackTrace();

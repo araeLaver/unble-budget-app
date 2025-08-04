@@ -628,31 +628,31 @@
     <!-- 사이드바 -->
     <aside class="sidebar" id="sidebar">
         <nav class="nav-menu">
-            <button class="nav-item active" onclick="showPage('calendar')">
+            <button class="nav-item active" onclick="showPage('calendar', this)">
                 <span class="nav-icon">📅</span>
                 캘린더
             </button>
-            <button class="nav-item" onclick="showPage('transactions')">
+            <button class="nav-item" onclick="showPage('transactions', this)">
                 <span class="nav-icon">📋</span>
                 거래 내역
             </button>
-            <button class="nav-item" onclick="showPage('addTransaction')">
+            <button class="nav-item" onclick="showPage('addTransaction', this)">
                 <span class="nav-icon">➕</span>
                 거래 추가
             </button>
-            <button class="nav-item" onclick="showPage('charts')">
+            <button class="nav-item" onclick="showPage('charts', this)">
                 <span class="nav-icon">📊</span>
                 차트 분석
             </button>
-            <button class="nav-item" onclick="showPage('assets')">
+            <button class="nav-item" onclick="showPage('assets', this)">
                 <span class="nav-icon">💰</span>
                 자산 관리
             </button>
-            <button class="nav-item" onclick="showPage('categories')">
+            <button class="nav-item" onclick="showPage('categories', this)">
                 <span class="nav-icon">🏷️</span>
                 카테고리 관리
             </button>
-            <button class="nav-item" onclick="showPage('settings')">
+            <button class="nav-item" onclick="showPage('settings', this)">
                 <span class="nav-icon">⚙️</span>
                 설정
             </button>
@@ -719,6 +719,7 @@
                         <option value="">선택하세요</option>
                         <option value="EXPENSE">지출</option>
                         <option value="INCOME">수입</option>
+                        <option value="ASSET">자산 이동</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -752,10 +753,10 @@
                 <div class="chart-header">
                     <h3>분석 기간</h3>
                     <div class="chart-filters">
-                        <button class="filter-btn active" onclick="setChartPeriod('thisMonth')">이번 달</button>
-                        <button class="filter-btn" onclick="setChartPeriod('lastMonth')">지난 달</button>
-                        <button class="filter-btn" onclick="setChartPeriod('last3Months')">최근 3개월</button>
-                        <button class="filter-btn" onclick="setChartPeriod('thisYear')">올해</button>
+                        <button class="filter-btn active" onclick="setChartPeriod('thisMonth', this)">이번 달</button>
+                        <button class="filter-btn" onclick="setChartPeriod('lastMonth', this)">지난 달</button>
+                        <button class="filter-btn" onclick="setChartPeriod('last3Months', this)">최근 3개월</button>
+                        <button class="filter-btn" onclick="setChartPeriod('thisYear', this)">올해</button>
                     </div>
                 </div>
                 
@@ -1031,7 +1032,7 @@
                 <div style="color: #666; line-height: 1.6;">
                     <p><strong>Unble Budget</strong> v1.0.0</p>
                     <p>개인 가계부 관리 서비스</p>
-                    <p>문의: support@unble.com</p>
+                    <p>문의: kimdan2@nate.com</p>
                 </div>
             </div>
         </div>
@@ -1143,6 +1144,13 @@
                 { id: 'investment', name: '투자수익', icon: '📊' },
                 { id: 'gift', name: '선물/용돈', icon: '🎁' },
                 { id: 'etc', name: '기타', icon: '📝' }
+            ],
+            ASSET: [
+                { id: 'cash', name: '현금', icon: '💰' },
+                { id: 'bank', name: '은행예금', icon: '🏦' },
+                { id: 'savings', name: '적금', icon: '💎' },
+                { id: 'investment', name: '투자', icon: '📈' },
+                { id: 'card', name: '카드잔액', icon: '💳' }
             ]
         };
 
@@ -1188,7 +1196,7 @@
         }
 
         // 페이지 전환
-        function showPage(pageId) {
+        function showPage(pageId, element) {
             // 모든 페이지 숨기기
             document.querySelectorAll('.content-page').forEach(page => {
                 page.classList.remove('active');
@@ -1201,7 +1209,9 @@
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.classList.remove('active');
             });
-            event.target.classList.add('active');
+            if (element) {
+                element.classList.add('active');
+            }
             
             // 페이지별 데이터 업데이트
             switch(pageId) {
@@ -1408,11 +1418,55 @@
                 const localCategories = JSON.parse(savedCategories);
                 categories.EXPENSE = localCategories.EXPENSE || categories.EXPENSE;
                 categories.INCOME = localCategories.INCOME || categories.INCOME;
+                categories.ASSET = localCategories.ASSET || categories.ASSET;
             }
             
             updateCalendarData();
             updateTransactionList();
             updateCategoryDisplay();
+        }
+
+        // 게스트 데이터 마이그레이션
+        async function migrateGuestData(guestTransactions) {
+            try {
+                // 데이터 검증
+                const validateResponse = await fetch(`${API_BASE}/migration/validate-data`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(guestTransactions)
+                });
+
+                const validateResult = await validateResponse.json();
+                
+                if (!validateResult.canMigrate) {
+                    alert(`데이터 검증 실패: ${validateResult.invalidCount}개의 유효하지 않은 데이터가 있습니다.`);
+                    return;
+                }
+
+                // 데이터 마이그레이션 실행
+                const migrateResponse = await fetch(`${API_BASE}/migration/guest-data`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(guestTransactions)
+                });
+
+                const migrateResult = await migrateResponse.json();
+                
+                if (migrateResult.success) {
+                    alert(`데이터 마이그레이션 완료!\n성공: ${migrateResult.successCount}개\n실패: ${migrateResult.failCount}개`);
+                } else {
+                    alert('데이터 마이그레이션에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('마이그레이션 오류:', error);
+                alert('데이터 마이그레이션 중 오류가 발생했습니다.');
+            }
         }
 
         // 서버 데이터 로드
@@ -1430,6 +1484,7 @@
                     // 서버 카테고리로 업데이트
                     categories.EXPENSE = serverCategories.filter(c => c.categoryType === 'EXPENSE');
                     categories.INCOME = serverCategories.filter(c => c.categoryType === 'INCOME');
+                    categories.ASSET = serverCategories.filter(c => c.categoryType === 'ASSET');
                 }
                 
                 // 거래 내역 로드
@@ -1476,7 +1531,7 @@
                 document.getElementById('transactionForm').reset();
                 setToday();
                 loadData();
-                showPage('calendar');
+                showPage('calendar', document.querySelector('.nav-item[onclick*="calendar"]'));
             } else {
                 // 회원은 서버 DB에 저장 (계정별로 분리)
                 try {
@@ -1522,13 +1577,26 @@
                         document.getElementById('transactionForm').reset();
                         setToday();
                         await loadData();
-                        showPage('calendar');
+                        showPage('calendar', document.querySelector('.nav-item[onclick*="calendar"]'));
                     } else {
                         alert('서버 오류: ' + (responseData.message || '거래 추가에 실패했습니다.'));
                     }
                 } catch (error) {
                     console.error('거래 추가 오류:', error);
-                    alert('네트워크 오류: ' + error.message);
+                    
+                    // 에러 메시지 개선
+                    let errorMessage = '거래 추가 중 오류가 발생했습니다.';
+                    if (error.message) {
+                        if (error.message.includes('Cannot read properties of undefined')) {
+                            errorMessage = '폼 데이터 처리 중 오류가 발생했습니다. 다시 시도해주세요.';
+                        } else if (error.message.includes('Failed to fetch')) {
+                            errorMessage = '서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.';
+                        } else {
+                            errorMessage = '오류: ' + error.message;
+                        }
+                    }
+                    
+                    alert(errorMessage);
                 }
             }
         });
@@ -1651,7 +1719,7 @@
                 
                 document.getElementById('transactionDate').value = dateStr;
                 closeDayModal();
-                showPage('addTransaction');
+                showPage('addTransaction', document.querySelector('.nav-item[onclick*=\"addTransaction\"]'));
             }
         }
 
@@ -1711,7 +1779,7 @@
                     const guestTransactions = localStorage.getItem('guestTransactions');
                     if (guestTransactions) {
                         if (confirm('비회원으로 작성한 데이터를 계정으로 이전하시겠습니까?')) {
-                            // TODO: 데이터 마이그레이션 구현
+                            await migrateGuestData(JSON.parse(guestTransactions));
                         }
                         localStorage.removeItem('guestTransactions');
                     }
@@ -1959,10 +2027,12 @@
         // 차트 분석 관련 함수들
         let currentChartPeriod = 'thisMonth';
 
-        function setChartPeriod(period) {
+        function setChartPeriod(period, element) {
             currentChartPeriod = period;
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            if (element) {
+                element.classList.add('active');
+            }
             updateChartData();
         }
 
@@ -2171,8 +2241,8 @@
 
             assetTransactions.forEach(t => {
                 const categoryName = t.category.name;
-                const amount = t.transactionType === 'INCOME' ? 
-                              parseFloat(t.amount) : -parseFloat(t.amount);
+                // ASSET 타입은 항상 양수로 처리 (자산의 현재 잔액을 의미)
+                const amount = parseFloat(t.amount);
                 
                 if (!assetTotals[categoryName]) {
                     assetTotals[categoryName] = {
@@ -2186,14 +2256,19 @@
 
             // 자산 분류
             Object.entries(assetTotals).forEach(([name, data]) => {
-                totalAssets += data.amount;
-                
-                if (['현금', '은행예금'].includes(name)) {
-                    liquidAssets += data.amount;
-                } else if (['투자', '주식', '펀드'].includes(name)) {
-                    investmentAssets += data.amount;
-                } else if (['카드잔액', '대출'].includes(name) && data.amount < 0) {
+                if (['카드잔액', '대출', '신용카드', '부채'].includes(name)) {
+                    // 부채는 총자산에서 차감하고 별도 집계
                     totalDebt += Math.abs(data.amount);
+                    totalAssets -= Math.abs(data.amount); // 부채는 총자산에서 차감
+                } else {
+                    // 일반 자산은 총자산에 추가
+                    totalAssets += data.amount;
+                    
+                    if (['현금', '은행예금', '적금'].includes(name)) {
+                        liquidAssets += data.amount;
+                    } else if (['투자', '주식', '펀드'].includes(name)) {
+                        investmentAssets += data.amount;
+                    }
                 }
             });
 
@@ -2213,24 +2288,30 @@
             const debts = [];
 
             Object.entries(assetTotals).forEach(([name, data]) => {
+                const isDebt = ['카드잔액', '대출', '신용카드', '부채'].includes(name);
+                const displayAmount = Math.abs(data.amount);
+                
                 const item = `
                     <div class="transaction-item">
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <span style="font-size: 24px;">${data.icon}</span>
                             <span>${name}</span>
                         </div>
-                        <div class="amount ${data.amount >= 0 ? 'income-amount' : 'expense-amount'}">
-                            ₩${Math.abs(data.amount).toLocaleString()}
+                        <div class="amount ${isDebt ? 'expense-amount' : 'income-amount'}">
+                            ₩${displayAmount.toLocaleString()}
                         </div>
                     </div>
                 `;
 
-                if (['현금', '은행예금'].includes(name)) {
+                if (isDebt) {
+                    debts.push(item);
+                } else if (['현금', '은행예금', '적금'].includes(name)) {
                     cashAssets.push(item);
                 } else if (['투자', '주식', '펀드'].includes(name)) {
                     investments.push(item);
-                } else if (data.amount < 0) {
-                    debts.push(item);
+                } else {
+                    // 기타 자산은 현금성 자산으로 분류
+                    cashAssets.push(item);
                 }
             });
 
@@ -2299,7 +2380,262 @@
         }
 
         function showImportData() {
-            alert('데이터 가져오기 기능은 준비 중입니다.');
+            showImportModal();
+        }
+
+        function showImportModal() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.5); z-index: 1000;
+                display: flex; align-items: center; justify-content: center;
+            `;
+            
+            modal.innerHTML = `
+                <div style="background: white; padding: 30px; border-radius: 10px; max-width: 500px; width: 90%;">
+                    <h3 style="margin-bottom: 20px; color: #333;">📥 데이터 가져오기</h3>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 10px; font-weight: bold;">파일 선택:</label>
+                        <input type="file" id="importFile" accept=".csv,.json,.xlsx,.xls" 
+                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 10px; font-weight: bold;">파일 형식:</label>
+                        <select id="importFormat" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                            <option value="csv">CSV 파일</option>
+                            <option value="json">JSON 파일</option>
+                            <option value="excel">Excel 파일</option>
+                        </select>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                        <h4 style="margin-bottom: 10px; color: #666;">📋 CSV 형식 예시:</h4>
+                        <code style="font-size: 12px; color: #666;">
+                            날짜,설명,금액,카테고리,거래타입<br>
+                            2024-01-01,점심식사,15000,식비,EXPENSE<br>
+                            2024-01-01,급여,2500000,급여,INCOME
+                        </code>
+                        <div style="margin-top: 10px;">
+                            <button onclick="downloadTemplate()" style="padding: 5px 10px; background: #28a745; color: white; border: none; border-radius: 3px; font-size: 12px;">
+                                📄 템플릿 다운로드
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                        <button onclick="closeImportModal()" 
+                                style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 5px;">
+                            취소
+                        </button>
+                        <button onclick="previewImport()" 
+                                style="padding: 10px 20px; background: #17a2b8; color: white; border: none; border-radius: 5px;">
+                            미리보기
+                        </button>
+                        <button onclick="executeImport()" 
+                                style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px;">
+                            가져오기
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            window.currentImportModal = modal;
+        }
+
+        function closeImportModal() {
+            if (window.currentImportModal) {
+                document.body.removeChild(window.currentImportModal);
+                window.currentImportModal = null;
+            }
+        }
+
+        async function downloadTemplate() {
+            try {
+                const response = await fetch(`${API_BASE}/data-import/template/csv`, {
+                    headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {}
+                });
+                
+                if (response.ok) {
+                    const csvContent = await response.text();
+                    const blob = new Blob([csvContent], { type: 'text/csv' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'transaction_template.csv';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                } else {
+                    alert('템플릿 다운로드에 실패했습니다.');
+                }
+            } catch (error) {
+                alert('템플릿 다운로드 중 오류가 발생했습니다.');
+            }
+        }
+
+        async function previewImport() {
+            const fileInput = document.getElementById('importFile');
+            const formatSelect = document.getElementById('importFormat');
+            
+            if (!fileInput.files[0]) {
+                alert('파일을 선택해주세요.');
+                return;
+            }
+            
+            if (isGuest) {
+                alert('게스트 모드에서는 데이터 가져오기를 사용할 수 없습니다. 로그인해주세요.');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('format', formatSelect.value);
+            
+            try {
+                const response = await fetch(`${API_BASE}/data-import/preview`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showPreviewModal(result);
+                } else {
+                    alert('미리보기 실패: ' + result.message);
+                }
+            } catch (error) {
+                alert('미리보기 중 오류가 발생했습니다.');
+            }
+        }
+
+        function showPreviewModal(result) {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.5); z-index: 1001;
+                display: flex; align-items: center; justify-content: center;
+            `;
+            
+            const previewRows = result.preview.map(item => `
+                <tr>
+                    <td>${item.transactionDate}</td>
+                    <td>${item.description}</td>
+                    <td>₩${item.amount.toLocaleString()}</td>
+                    <td>${item.transactionType}</td>
+                </tr>
+            `).join('');
+            
+            modal.innerHTML = `
+                <div style="background: white; padding: 30px; border-radius: 10px; max-width: 800px; width: 90%; max-height: 80%; overflow-y: auto;">
+                    <h3 style="margin-bottom: 20px; color: #333;">👀 데이터 미리보기</h3>
+                    
+                    <div style="margin-bottom: 20px; display: flex; gap: 20px;">
+                        <div style="padding: 10px; background: #e3f2fd; border-radius: 5px;">
+                            <strong>총 ${result.totalCount}개</strong> 거래
+                        </div>
+                        <div style="padding: 10px; background: #e8f5e8; border-radius: 5px;">
+                            <strong>${result.validCount}개</strong> 유효
+                        </div>
+                        <div style="padding: 10px; background: #fff3e0; border-radius: 5px;">
+                            <strong>${result.invalidCount}개</strong> 오류
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="margin-bottom: 10px;">처음 10개 데이터:</h4>
+                        <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
+                            <thead>
+                                <tr style="background: #f8f9fa;">
+                                    <th style="padding: 10px; border: 1px solid #ddd;">날짜</th>
+                                    <th style="padding: 10px; border: 1px solid #ddd;">설명</th>
+                                    <th style="padding: 10px; border: 1px solid #ddd;">금액</th>
+                                    <th style="padding: 10px; border: 1px solid #ddd;">타입</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${previewRows}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                        <button onclick="closePreviewModal()" 
+                                style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 5px;">
+                            닫기
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            window.currentPreviewModal = modal;
+        }
+
+        function closePreviewModal() {
+            if (window.currentPreviewModal) {
+                document.body.removeChild(window.currentPreviewModal);
+                window.currentPreviewModal = null;
+            }
+        }
+
+        async function executeImport() {
+            const fileInput = document.getElementById('importFile');
+            const formatSelect = document.getElementById('importFormat');
+            
+            if (!fileInput.files[0]) {
+                alert('파일을 선택해주세요.');
+                return;
+            }
+            
+            if (isGuest) {
+                alert('게스트 모드에서는 데이터 가져오기를 사용할 수 없습니다. 로그인해주세요.');
+                return;
+            }
+            
+            if (!confirm('선택한 파일의 데이터를 가져오시겠습니까?')) {
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            
+            const endpoints = {
+                'csv': '/data-import/csv',
+                'json': '/data-import/json',
+                'excel': '/data-import/excel'
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}${endpoints[formatSelect.value]}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(`데이터 가져오기 완료!\n성공: ${result.successCount}개\n실패: ${result.failCount}개`);
+                    closeImportModal();
+                    if (!isGuest) {
+                        loadServerData(); // 데이터 새로고침
+                    }
+                } else {
+                    alert('데이터 가져오기 실패: ' + result.message);
+                }
+            } catch (error) {
+                alert('데이터 가져오기 중 오류가 발생했습니다.');
+            }
         }
 
         function clearAllData() {
@@ -2317,10 +2653,22 @@
 
         // 모달 외부 클릭 시 닫기
         window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
+            if (event && event.target && event.target.classList && event.target.classList.contains('modal')) {
                 event.target.classList.remove('active');
             }
         };
+        
+        // 전역 에러 핸들러
+        window.onerror = function(message, source, lineno, colno, error) {
+            console.error('전역 오류:', {message, source, lineno, colno, error});
+            return false; // 기본 에러 처리를 막지 않음
+        };
+        
+        // Promise rejection 핸들러
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('처리되지 않은 Promise 거부:', event.reason);
+            event.preventDefault(); // 콘솔에 오류 표시 방지
+        });
     </script>
 </body>
 </html>

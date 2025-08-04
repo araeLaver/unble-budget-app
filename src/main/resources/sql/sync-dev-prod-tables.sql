@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS unble_prod.transactions (
     category_id BIGINT NOT NULL,
     amount DECIMAL(15,2) NOT NULL,
     description TEXT,
-    transaction_type VARCHAR(20) NOT NULL CHECK (transaction_type IN ('INCOME', 'EXPENSE')),
+    transaction_type VARCHAR(20) NOT NULL CHECK (transaction_type IN ('INCOME', 'EXPENSE', 'ASSET')),
     transaction_date DATE NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

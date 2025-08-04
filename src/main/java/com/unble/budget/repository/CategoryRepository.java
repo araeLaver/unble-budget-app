@@ -39,4 +39,8 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     // 카테고리 타입별 개수
     long countByCategoryType(Category.CategoryType categoryType);
     long countByIsDefaultTrueAndCategoryType(Category.CategoryType categoryType);
+    
+    // 이름으로 카테고리 찾기
+    @Query("SELECT c FROM Category c WHERE c.name = :name AND (c.user IS NULL OR c.isDefault = true)")
+    java.util.Optional<Category> findByName(@Param("name") String name);
 }

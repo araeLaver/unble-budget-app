@@ -95,4 +95,12 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     List<Object[]> findDailyTransactionData(@Param("userId") Long userId, 
                                            @Param("startDate") LocalDate startDate, 
                                            @Param("endDate") LocalDate endDate);
+    
+    // 추가 메서드들
+    List<Transaction> findByUser(User user);
+    
+    List<Transaction> findByUserAndTransactionDateBetween(User user, LocalDate startDate, LocalDate endDate);
+    
+    List<Transaction> findByUserAndCategoryAndTransactionDateBetween(User user, Category category, 
+                                                                    LocalDate startDate, LocalDate endDate);
 }

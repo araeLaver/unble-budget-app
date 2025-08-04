@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS transactions (
     category_id BIGINT REFERENCES categories(id) ON DELETE SET NULL,
     amount DECIMAL(15,2) NOT NULL CHECK (amount > 0),
     description TEXT,
-    transaction_type VARCHAR(20) NOT NULL CHECK (transaction_type IN ('INCOME', 'EXPENSE')),
+    transaction_type VARCHAR(20) NOT NULL CHECK (transaction_type IN ('INCOME', 'EXPENSE', 'ASSET')),
     transaction_date DATE NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

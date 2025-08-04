@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unble - 스마트 가계부</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .logo p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-bottom: 15px;
+        }
+
+        .btn:hover {
+            background: #5a6fd8;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-small {
+            width: auto;
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+
+        .user-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .user-info h2 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .summary-card h3 {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .summary-card .amount {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .expense { color: #e74c3c; }
+        .income { color: #27ae60; }
+
+        .nav-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .nav-tab.active {
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .transaction-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .transaction-info h4 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .transaction-info p {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .transaction-amount {
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .message {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
+        }
+
+        .success {
+            background: #efe;
+            color: #363;
+            border: 1px solid #cfc;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .asset-list {
+            margin-top: 20px;
+        }
+
+        .asset-list h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .tab-content {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .nav-tab {
+                min-width: 100px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>Unble</h1>
+            <p>스마트 가계부</p>
+        </div>
+
+        <div id="message"></div>
+
+        <!-- 로그인 페이지 -->
+        <div id="loginPage" class="page active">
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">이메일</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">비밀번호</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit" class="btn">로그인</button>
+                <button type="button" class="btn btn-secondary" onclick="showPage('registerPage')">회원가입</button>
+                <button type="button" class="btn" onclick="window.open('/demo.html', '_blank')" style="background: linear-gradient(45deg, #ff6b6b, #ee5a52); margin-top: 10px;">🎭 서비스 미리보기</button>
+                <button type="button" class="btn" onclick="window.open('/app-info.html', '_blank')" style="background: linear-gradient(45deg, #27ae60, #2ecc71); margin-top: 5px;">📱 앱 정보 보기</button>
+            </form>
+        </div>
+
+        <!-- 회원가입 페이지 -->
+        <div id="registerPage" class="page">
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="registerName">이름</label>
+                    <input type="text" id="registerName" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">이메일</label>
+                    <input type="email" id="registerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">비밀번호</label>
+                    <input type="password" id="registerPassword" required minlength="4">
+                </div>
+                <button type="submit" class="btn">회원가입</button>
+                <button type="button" class="btn btn-secondary" onclick="showPage('loginPage')">로그인으로 돌아가기</button>
+                <button type="button" class="btn" onclick="window.open('/demo.html', '_blank')" style="background: linear-gradient(45deg, #ff6b6b, #ee5a52); margin-top: 10px;">🎭 서비스 미리보기</button>
+                <button type="button" class="btn" onclick="window.open('/app-info.html', '_blank')" style="background: linear-gradient(45deg, #27ae60, #2ecc71); margin-top: 5px;">📱 앱 정보 보기</button>
+            </form>
+        </div>
+
+        <!-- 대시보드 페이지 -->
+        <div id="dashboardPage" class="page">
+            <div class="user-info">
+                <h2 id="userName">환영합니다!</h2>
+                <button class="btn btn-secondary btn-small" onclick="logout()">로그아웃</button>
+            </div>
+
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <h3>이번 달 지출</h3>
+                    <div class="amount expense" id="totalExpense">₩0</div>
+                </div>
+                <div class="summary-card">
+                    <h3>이번 달 수입</h3>
+                    <div class="amount income" id="totalIncome">₩0</div>
+                </div>
+            </div>
+
+            <div class="nav-tabs">
+                <div class="nav-tab active" onclick="showTab('transactionsList')">거래 내역</div>
+                <div class="nav-tab" onclick="showTab('addTransaction')">거래 추가</div>
+                <div class="nav-tab" onclick="window.location.href='/calendar.html'">📅 캘린더</div>
+                <div class="nav-tab" onclick="showTab('chartView')">📊 차트</div>
+                <div class="nav-tab" onclick="showTab('assetManagement')">자산 관리</div>
+                <div id="adminMenus" style="display: none;">
+                    <div class="nav-tab" onclick="window.open('/status.html', '_blank')" style="background: linear-gradient(45deg, #667eea, #764ba2); color: white; border-radius: 10px; margin-left: 10px;">🏥 서비스 상태</div>
+                </div>
+                <div id="superAdminMenu" style="display: none;">
+                    <div class="nav-tab" onclick="window.open('/admin.html', '_blank')" style="background: linear-gradient(45deg, #e74c3c, #c0392b); color: white; border-radius: 10px; margin-left: 10px;">🛠️ 관리자</div>
+                </div>
+            </div>
+
+            <!-- 거래 내역 탭 -->
+            <div id="transactionsList" class="tab-content active">
+                <div class="transaction-list" id="transactionList">
+                    <p style="text-align: center; color: #666; padding: 20px;">거래 내역이 없습니다.</p>
+                </div>
+            </div>
+
+            <!-- 거래 추가 탭 -->
+            <div id="addTransaction" class="tab-content hidden">
+                <form id="transactionForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="transactionType">유형</label>
+                            <select id="transactionType" required onchange="updateCategoryOptions()">
+                                <option value="">선택하세요</option>
+                                <option value="EXPENSE">지출</option>
+                                <option value="INCOME">수입</option>
+                                <option value="ASSET">자산 이동</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="amount">금액</label>
+                            <input type="number" id="amount" required min="0" step="1">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="category">카테고리</label>
+                            <select id="category">
+                                <option value="">선택하세요</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="transactionDate">날짜</label>
+                            <input type="date" id="transactionDate" required>
+                    <button type="button" onclick="setToday()" style="margin-top: 5px; padding: 8px 16px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 5px; cursor: pointer;">오늘 날짜</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">설명</label>
+                        <textarea id="description" rows="3" placeholder="거래에 대한 설명을 입력하세요 (선택사항)"></textarea>
+                    </div>
+                    <button type="submit" class="btn">거래 추가</button>
+                </form>
+            </div>
+
+            <!-- 차트 분석 탭 -->
+            <div id="chartView" class="tab-content hidden">
+                <div style="text-align: center; padding: 40px;">
+                    <h3 style="color: #667eea; margin-bottom: 20px;">📊 상세 차트 분석</h3>
+                    <p style="color: #666; margin-bottom: 30px;">거래 데이터를 다양한 차트로 분석해보세요</p>
+                    <button onclick="window.open('/charts.html', '_blank')" 
+                            style="padding: 15px 30px; background: linear-gradient(45deg, #667eea, #764ba2); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.2s;">
+                        차트 페이지 열기 →
+                    </button>
+                </div>
+            </div>
+
+            <!-- 자산 관리 탭 -->
+            <div id="assetManagement" class="tab-content hidden">
+                <div class="summary-cards">
+                    <div class="summary-card">
+                        <h3>총 자산</h3>
+                        <div class="amount" id="totalAssets">₩0</div>
+                    </div>
+                    <div class="summary-card">
+                        <h3>현금성 자산</h3>
+                        <div class="amount" id="liquidAssets">₩0</div>
+                    </div>
+                </div>
+                
+                <div class="asset-list">
+                    <h3>자산별 현황</h3>
+                    <div id="assetBreakdown">
+                        <p style="text-align: center; color: #666; padding: 20px;">자산 정보를 불러오는 중...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        let authToken = localStorage.getItem('authToken');
+        let allCategories = [];
+        let categoriesByType = {
+            INCOME: [],
+            EXPENSE: [],
+            ASSET: []
+        };
+
+        // 페이지 로드 시 토큰 확인
+        if (authToken) {
+            checkAuthStatus();
+        }
+
+        // URL 파라미터 확인 (캘린더에서 넘어온 경우)
+        const urlParams = new URLSearchParams(window.location.search);
+        const dateParam = urlParams.get('date');
+        const tabParam = urlParams.get('tab');
+        
+        // 오늘 날짜를 기본으로 설정 (또는 URL 파라미터의 날짜)
+        document.getElementById('transactionDate').value = dateParam || new Date().toISOString().split('T')[0];
+        
+        // 특정 탭으로 이동 (캘린더에서 넘어온 경우)
+        if (tabParam === 'addTransaction' && authToken) {
+            setTimeout(() => {
+                const addTransactionTab = document.querySelectorAll('.nav-tab')[1];
+                if (addTransactionTab) {
+                    addTransactionTab.click();
+                }
+            }, 500);
+        }
+
+        // 메시지 표시
+        function showMessage(message, type = 'error') {
+            const messageDiv = document.getElementById('message');
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = message;
+            messageDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // 페이지 전환
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        // 탭 전환
+        function showTab(tabId) {
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            event.target.classList.add('active');
+            document.getElementById(tabId).classList.remove('hidden');
+        }
+
+        // 로그인
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.token) {
+                    authToken = data.token;
+                    localStorage.setItem('authToken', authToken);
+                    localStorage.setItem('userName', data.name);
+                    localStorage.setItem('userEmail', data.email);
+                    document.getElementById('userName').textContent = `환영합니다, ${data.name}님!`;
+                    
+                    // admin 계정인지 확인하여 관리자 메뉴 표시
+                    if (data.email === 'admin@unble.com') {
+                        document.getElementById('adminMenus').style.display = 'block';
+                        document.getElementById('superAdminMenu').style.display = 'block';
+                    }
+                    
+                    showPage('dashboardPage');
+                    loadDashboardData();
+                    showMessage('로그인 성공!', 'success');
+                } else {
+                    showMessage(data.message || '로그인에 실패했습니다.');
+                }
+            } catch (error) {
+                showMessage('로그인 중 오류가 발생했습니다.');
+            }
+        });
+
+        // 회원가입
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.token) {
+                    authToken = data.token;
+                    localStorage.setItem('authToken', authToken);
+                    localStorage.setItem('userName', data.name);
+                    document.getElementById('userName').textContent = `환영합니다, ${data.name}님!`;
+                    showPage('dashboardPage');
+                    loadDashboardData();
+                    showMessage('회원가입 성공!', 'success');
+                } else {
+                    showMessage(data.message || '회원가입에 실패했습니다.');
+                }
+            } catch (error) {
+                showMessage('회원가입 중 오류가 발생했습니다.');
+            }
+        });
+
+        // 거래 추가
+        document.getElementById('transactionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                transactionType: document.getElementById('transactionType').value,
+                amount: parseFloat(document.getElementById('amount').value),
+                categoryId: document.getElementById('category').value || null,
+                transactionDate: document.getElementById('transactionDate').value,
+                description: document.getElementById('description').value
+            };
+            
+            // 폼 데이터 검증
+            if (!formData.transactionType) {
+                showMessage('거래 유형을 선택해주세요.');
+                return;
+            }
+            if (!formData.amount || formData.amount <= 0) {
+                showMessage('올바른 금액을 입력해주세요.');
+                return;
+            }
+            if (!formData.transactionDate) {
+                showMessage('거래 날짜를 선택해주세요.');
+                return;
+            }
+
+            console.log('거래 추가 요청:', formData);
+
+            try {
+                const response = await fetch(`${API_BASE}/transactions`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                console.log('응답 상태:', response.status);
+                
+                const data = await response.json();
+                console.log('응답 데이터:', data);
+                
+                if (response.ok) {
+                    showMessage('거래가 추가되었습니다!', 'success');
+                    document.getElementById('transactionForm').reset();
+                    setToday(); // 날짜를 오늘로 리셋
+                    loadDashboardData();
+                    showTab('transactionsList');
+                    document.querySelector('.nav-tab').click();
+                } else {
+                    console.error('서버 오류:', data);
+                    showMessage(data.message || '거래 추가에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('거래 추가 오류:', error);
+                showMessage('네트워크 오류가 발생했습니다. 다시 시도해주세요.');
+            }
+        });
+
+        // 인증 상태 확인
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/auth/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('userName').textContent = `환영합니다, ${data.name}님!`;
+                    
+                    // admin 계정인지 확인하여 관리자 메뉴 표시
+                    if (data.email === 'admin@unble.com') {
+                        document.getElementById('adminMenus').style.display = 'block';
+                        document.getElementById('superAdminMenu').style.display = 'block';
+                    }
+                    
+                    showPage('dashboardPage');
+                    loadDashboardData();
+                } else {
+                    logout();
+                }
+            } catch (error) {
+                logout();
+            }
+        }
+
+        // 대시보드 데이터 로드
+        async function loadDashboardData() {
+            await Promise.all([
+                loadSummary(),
+                loadCategories(),
+                loadTransactions(),
+                loadAssetSummary()
+            ]);
+        }
+
+        // 월별 요약 로드
+        async function loadSummary() {
+            try {
+                const response = await fetch(`${API_BASE}/transactions/summary`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('totalExpense').textContent = 
+                        `₩${Number(data.totalExpense).toLocaleString()}`;
+                    document.getElementById('totalIncome').textContent = 
+                        `₩${Number(data.totalIncome).toLocaleString()}`;
+                }
+            } catch (error) {
+                console.error('요약 정보 로드 실패:', error);
+            }
+        }
+
+        // 카테고리 로드
+        async function loadCategories() {
+            try {
+                const response = await fetch(`${API_BASE}/categories/grouped`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const groupedCategories = await response.json();
+                    categoriesByType.INCOME = groupedCategories.INCOME || [];
+                    categoriesByType.EXPENSE = groupedCategories.EXPENSE || [];
+                    categoriesByType.ASSET = groupedCategories.ASSET || [];
+                    
+                    allCategories = [
+                        ...categoriesByType.INCOME,
+                        ...categoriesByType.EXPENSE,
+                        ...categoriesByType.ASSET
+                    ];
+                    
+                    updateCategoryOptions();
+                }
+            } catch (error) {
+                console.error('카테고리 로드 실패:', error);
+            }
+        }
+
+        // 거래 유형에 따라 카테고리 옵션 업데이트
+        function updateCategoryOptions() {
+            const transactionType = document.getElementById('transactionType').value;
+            const categorySelect = document.getElementById('category');
+            
+            categorySelect.innerHTML = '<option value="">선택하세요</option>';
+            
+            if (transactionType && categoriesByType[transactionType]) {
+                categoriesByType[transactionType].forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.id;
+                    option.textContent = `${category.icon} ${category.name}`;
+                    categorySelect.appendChild(option);
+                });
+            }
+        }
+
+        // 거래 내역 로드
+        async function loadTransactions() {
+            try {
+                const response = await fetch(`${API_BASE}/transactions`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const transactions = await response.json();
+                    displayTransactions(transactions);
+                }
+            } catch (error) {
+                console.error('거래 내역 로드 실패:', error);
+            }
+        }
+
+        // 거래 내역 표시
+        function displayTransactions(transactions) {
+            const transactionList = document.getElementById('transactionList');
+            
+            if (transactions.length === 0) {
+                transactionList.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">거래 내역이 없습니다.</p>';
+                return;
+            }
+            
+            transactionList.innerHTML = transactions.map(transaction => {
+                const categoryName = transaction.category ? transaction.category.name : '기타';
+                const categoryIcon = transaction.category ? transaction.category.icon : '📝';
+                const amountClass = transaction.transactionType === 'EXPENSE' ? 'expense' : 'income';
+                const amountSign = transaction.transactionType === 'EXPENSE' ? '-' : '+';
+                
+                return `
+                    <div class="transaction-item">
+                        <div class="transaction-info">
+                            <h4>${categoryIcon} ${categoryName}</h4>
+                            <p>${transaction.description || '설명 없음'} • ${transaction.transactionDate}</p>
+                        </div>
+                        <div class="transaction-amount ${amountClass}">
+                            ${amountSign}₩${Number(transaction.amount).toLocaleString()}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 자산 요약 로드
+        async function loadAssetSummary() {
+            try {
+                // 자산 카테고리별 거래 내역을 가져와서 잔액 계산
+                const response = await fetch(`${API_BASE}/transactions`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const transactions = await response.json();
+                    const assetTotals = {};
+                    let totalAssets = 0;
+                    let liquidAssets = 0;
+                    
+                    // 자산 카테고리별 잔액 계산
+                    categoriesByType.ASSET.forEach(category => {
+                        assetTotals[category.name] = 0;
+                    });
+                    
+                    transactions.forEach(transaction => {
+                        if (transaction.category && transaction.category.categoryType === 'ASSET') {
+                            const categoryName = transaction.category.name;
+                            const amount = transaction.transactionType === 'INCOME' ? 
+                                          transaction.amount : -transaction.amount;
+                            assetTotals[categoryName] = (assetTotals[categoryName] || 0) + amount;
+                        }
+                    });
+                    
+                    // 총 자산 및 현금성 자산 계산
+                    Object.entries(assetTotals).forEach(([categoryName, amount]) => {
+                        totalAssets += amount;
+                        if (['현금', '은행예금'].includes(categoryName)) {
+                            liquidAssets += amount;
+                        }
+                    });
+                    
+                    // UI 업데이트
+                    document.getElementById('totalAssets').textContent = `₩${totalAssets.toLocaleString()}`;
+                    document.getElementById('liquidAssets').textContent = `₩${liquidAssets.toLocaleString()}`;
+                    
+                    // 자산별 현황 표시
+                    displayAssetBreakdown(assetTotals);
+                }
+            } catch (error) {
+                console.error('자산 요약 로드 실패:', error);
+            }
+        }
+
+        // 자산별 현황 표시
+        function displayAssetBreakdown(assetTotals) {
+            const assetBreakdown = document.getElementById('assetBreakdown');
+            
+            if (Object.keys(assetTotals).length === 0) {
+                assetBreakdown.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">자산 정보가 없습니다.</p>';
+                return;
+            }
+            
+            assetBreakdown.innerHTML = Object.entries(assetTotals).map(([categoryName, amount]) => {
+                const category = categoriesByType.ASSET.find(cat => cat.name === categoryName);
+                const icon = category ? category.icon : '📝';
+                const color = category ? category.color : '#DDA0DD';
+                const amountClass = amount >= 0 ? 'income' : 'expense';
+                
+                return `
+                    <div class="transaction-item">
+                        <div class="transaction-info">
+                            <h4>${icon} ${categoryName}</h4>
+                            <p>현재 잔액</p>
+                        </div>
+                        <div class="transaction-amount ${amountClass}">
+                            ₩${amount.toLocaleString()}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 로그아웃
+        function logout() {
+            authToken = null;
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userName');
+            localStorage.removeItem('userEmail');
+            
+            // 관리자 메뉴 숨기기
+            document.getElementById('adminMenus').style.display = 'none';
+            document.getElementById('superAdminMenu').style.display = 'none';
+            
+            showPage('loginPage');
+        }
+
+        // 오늘 날짜 설정
+        function setToday() {
+            const today = new Date();
+            const formattedDate = today.getFullYear() + '-' + 
+                                String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+                                String(today.getDate()).padStart(2, '0');
+            document.getElementById('transactionDate').value = formattedDate;
+        }
+
+        // 페이지 로드 시 오늘 날짜로 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            if (document.getElementById('transactionDate')) {
+                setToday();
+            }
+        });
+    </script>
+</body>
+</html>
