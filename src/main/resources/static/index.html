@@ -13,47 +13,345 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            background: #f5f5f5;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* 헤더 */
+        .header {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            height: 60px;
             display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .logo {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .auth-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .auth-btn {
+            padding: 8px 16px;
+            background: none;
+            border: 1px solid #667eea;
+            color: #667eea;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .auth-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        /* 사이드바 */
+        .sidebar {
+            position: fixed;
+            left: -280px;
+            top: 60px;
+            bottom: 0;
+            width: 280px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            transition: left 0.3s;
+            z-index: 99;
+            overflow-y: auto;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.3);
+            display: none;
+            z-index: 98;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+        }
+
+        .nav-menu {
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-size: 16px;
+        }
+
+        .nav-item:hover {
+            background: #f8f9fa;
+        }
+
+        .nav-item.active {
+            background: #f0f4ff;
+            color: #667eea;
+            border-left: 3px solid #667eea;
+        }
+
+        .nav-icon {
+            margin-right: 15px;
+            font-size: 20px;
+        }
+
+        /* 메인 컨텐츠 */
+        .main-content {
+            margin-top: 60px;
+            padding: 20px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* 월별 요약 카드 */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        .summary-card h3 {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .summary-card .amount {
+            font-size: 1.8em;
+            font-weight: 700;
+        }
+
+        .income-amount { color: #27ae60; }
+        .expense-amount { color: #e74c3c; }
+        .balance-amount { color: #3498db; }
+
+        /* 캘린더 네비게이션 */
+        .calendar-nav {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .calendar-nav button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .calendar-nav button:hover {
+            background: #5a6fd8;
+        }
+
+        .calendar-nav h2 {
+            font-size: 1.5em;
+            color: #333;
+        }
+
+        /* 캘린더 */
+        .calendar-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+
+        .calendar-header {
+            text-align: center;
+            font-weight: 600;
+            color: #666;
+            padding: 10px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-height: 100px;
+            position: relative;
+        }
+
+        .calendar-day:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102,126,234,0.2);
+        }
+
+        .calendar-day.other-month {
+            opacity: 0.3;
+        }
+
+        .calendar-day.today {
+            background: #f0f4ff;
+            border-color: #667eea;
+        }
+
+        .day-number {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .day-summary {
+            font-size: 0.85em;
+            line-height: 1.3;
+        }
+
+        .net-positive {
+            background: #e8f8f3;
+            border-color: #27ae60;
+        }
+
+        .net-negative {
+            background: #fee;
+            border-color: #e74c3c;
+        }
+
+        /* 콘텐츠 페이지 */
+        .content-page {
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .content-page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 모달 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
             align-items: center;
             justify-content: center;
         }
 
-        .container {
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
             background: white;
             border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 30px;
             width: 90%;
             max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease-out;
         }
 
-        .logo {
-            text-align: center;
-            margin-bottom: 30px;
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
-        .logo h1 {
-            color: #667eea;
-            font-size: 2.5em;
-            font-weight: 700;
-            margin-bottom: 10px;
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
         }
 
-        .logo p {
-            color: #666;
-            font-size: 1.1em;
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
         }
 
-        .page {
-            display: none;
-        }
-
-        .page.active {
-            display: block;
-        }
-
+        /* 폼 스타일 */
         .form-group {
             margin-bottom: 20px;
         }
@@ -67,9 +365,9 @@
 
         .form-group input, .form-group select, .form-group textarea {
             width: 100%;
-            padding: 15px;
+            padding: 12px;
             border: 2px solid #eee;
-            border-radius: 10px;
+            border-radius: 8px;
             font-size: 16px;
             transition: border-color 0.3s;
         }
@@ -80,106 +378,32 @@
         }
 
         .btn {
-            width: 100%;
-            padding: 15px;
+            padding: 12px 24px;
             background: #667eea;
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: background 0.3s;
-            margin-bottom: 15px;
         }
 
         .btn:hover {
             background: #5a6fd8;
         }
 
-        .btn-secondary {
-            background: transparent;
-            color: #667eea;
-            border: 2px solid #667eea;
+        .btn-block {
+            width: 100%;
         }
 
-        .btn-secondary:hover {
-            background: #667eea;
-            color: white;
-        }
-
-        .btn-small {
-            width: auto;
-            padding: 10px 20px;
-            font-size: 14px;
-        }
-
-        .user-info {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .user-info h2 {
-            color: #333;
-            margin-bottom: 15px;
-        }
-
-        .summary-cards {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .summary-card {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-        }
-
-        .summary-card h3 {
-            font-size: 0.9em;
-            color: #666;
-            margin-bottom: 10px;
-        }
-
-        .summary-card .amount {
-            font-size: 1.5em;
-            font-weight: 700;
-            color: #333;
-        }
-
-        .expense { color: #e74c3c; }
-        .income { color: #27ae60; }
-
-        .nav-tabs {
-            display: flex;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #eee;
-        }
-
-        .nav-tab {
-            flex: 1;
-            padding: 15px;
-            text-align: center;
-            cursor: pointer;
-            font-weight: 600;
-            color: #666;
-            transition: all 0.3s;
-        }
-
-        .nav-tab.active {
-            color: #667eea;
-            border-bottom: 2px solid #667eea;
-        }
-
+        /* 거래 목록 */
         .transaction-list {
-            max-height: 400px;
-            overflow-y: auto;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
 
         .transaction-item {
@@ -190,101 +414,639 @@
             border-bottom: 1px solid #eee;
         }
 
-        .transaction-info h4 {
-            color: #333;
-            margin-bottom: 5px;
+        .transaction-item:last-child {
+            border-bottom: none;
         }
 
-        .transaction-info p {
-            color: #666;
-            font-size: 0.9em;
-        }
-
-        .transaction-amount {
-            font-weight: 700;
-            font-size: 1.1em;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .message {
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .error {
-            background: #fee;
-            color: #c33;
-            border: 1px solid #fcc;
-        }
-
-        .success {
-            background: #efe;
-            color: #363;
-            border: 1px solid #cfc;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .asset-list {
-            margin-top: 20px;
-        }
-
-        .asset-list h3 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 1.2em;
-        }
-
-        .tab-content {
-            animation: fadeIn 0.3s ease-in;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @media (max-width: 600px) {
-            .form-row {
-                grid-template-columns: 1fr;
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .calendar-day {
+                min-height: 80px;
+                padding: 5px;
+                font-size: 0.9em;
             }
-            
+
             .summary-cards {
                 grid-template-columns: 1fr;
             }
-            
-            .nav-tabs {
-                flex-wrap: wrap;
+
+            .calendar-nav {
+                flex-direction: column;
+                gap: 10px;
             }
-            
-            .nav-tab {
-                min-width: 100px;
-                font-size: 0.9em;
+
+            .calendar-nav h2 {
+                order: -1;
             }
+        }
+
+        /* 비회원 알림 */
+        .guest-notice {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .guest-notice button {
+            background: #856404;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        /* 카테고리 그리드 */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        /* 차트 스타일 */
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-filters {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .chart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .chart-item:last-child {
+            border-bottom: none;
+        }
+
+        .chart-bar {
+            height: 20px;
+            background: #eee;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+            position: relative;
+        }
+
+        .chart-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-ring {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto;
+        }
+
+        .progress-ring circle {
+            fill: none;
+            stroke-width: 8;
+            transform-origin: 50% 50%;
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring .background {
+            stroke: #f0f0f0;
+        }
+
+        .progress-ring .progress {
+            stroke-linecap: round;
+            transition: stroke-dasharray 0.5s ease;
+        }
+
+        .category-item {
+            background: #f8f9fa;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .category-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .category-icon {
+            font-size: 24px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .category-info {
+            flex: 1;
+        }
+
+        .category-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .category-type {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .delete-category {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="logo">
-            <h1>Unble</h1>
-            <p>스마트 가계부</p>
+    <!-- 헤더 -->
+    <header class="header">
+        <div class="header-left">
+            <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+            <div class="logo">Unble</div>
+        </div>
+        <div class="auth-section" id="authSection">
+            <button class="auth-btn" onclick="showAuthModal('login')">로그인</button>
+            <button class="auth-btn" onclick="showAuthModal('register')">회원가입</button>
+        </div>
+    </header>
+
+    <!-- 사이드바 -->
+    <aside class="sidebar" id="sidebar">
+        <nav class="nav-menu">
+            <button class="nav-item active" onclick="showPage('calendar')">
+                <span class="nav-icon">📅</span>
+                캘린더
+            </button>
+            <button class="nav-item" onclick="showPage('transactions')">
+                <span class="nav-icon">📋</span>
+                거래 내역
+            </button>
+            <button class="nav-item" onclick="showPage('addTransaction')">
+                <span class="nav-icon">➕</span>
+                거래 추가
+            </button>
+            <button class="nav-item" onclick="showPage('charts')">
+                <span class="nav-icon">📊</span>
+                차트 분석
+            </button>
+            <button class="nav-item" onclick="showPage('assets')">
+                <span class="nav-icon">💰</span>
+                자산 관리
+            </button>
+            <button class="nav-item" onclick="showPage('categories')">
+                <span class="nav-icon">🏷️</span>
+                카테고리 관리
+            </button>
+            <button class="nav-item" onclick="showPage('settings')">
+                <span class="nav-icon">⚙️</span>
+                설정
+            </button>
+        </nav>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- 메인 컨텐츠 -->
+    <main class="main-content">
+        <!-- 비회원 알림 -->
+        <div class="guest-notice" id="guestNotice" style="display: none;">
+            <span>📌 비회원 모드로 사용 중입니다. 데이터는 이 기기에만 저장됩니다.</span>
+            <button onclick="showAuthModal('login')">로그인하기</button>
         </div>
 
-        <div id="message"></div>
+        <!-- 캘린더 페이지 -->
+        <div id="calendarPage" class="content-page active">
+            <!-- 월별 요약 -->
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <h3>이번 달 수입</h3>
+                    <div class="amount income-amount" id="monthlyIncome">₩0</div>
+                </div>
+                <div class="summary-card">
+                    <h3>이번 달 지출</h3>
+                    <div class="amount expense-amount" id="monthlyExpense">₩0</div>
+                </div>
+                <div class="summary-card">
+                    <h3>잔액</h3>
+                    <div class="amount balance-amount" id="monthlyBalance">₩0</div>
+                </div>
+            </div>
 
-        <!-- 로그인 페이지 -->
-        <div id="loginPage" class="page active">
-            <form id="loginForm">
+            <!-- 캘린더 네비게이션 -->
+            <div class="calendar-nav">
+                <button onclick="previousMonth()">◀ 이전</button>
+                <h2 id="currentMonth">2024년 1월</h2>
+                <button onclick="nextMonth()">다음 ▶</button>
+            </div>
+
+            <!-- 캘린더 -->
+            <div class="calendar-container">
+                <div class="calendar-grid" id="calendarGrid">
+                    <!-- 동적으로 생성됨 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 거래 내역 페이지 -->
+        <div id="transactionsPage" class="content-page">
+            <h2>거래 내역</h2>
+            <div class="transaction-list" id="transactionList">
+                <p style="text-align: center; color: #666; padding: 20px;">거래 내역이 없습니다.</p>
+            </div>
+        </div>
+
+        <!-- 거래 추가 페이지 -->
+        <div id="addTransactionPage" class="content-page">
+            <h2>거래 추가</h2>
+            <form id="transactionForm" style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                <div class="form-group">
+                    <label for="transactionType">유형</label>
+                    <select id="transactionType" required onchange="updateCategoryOptions()">
+                        <option value="">선택하세요</option>
+                        <option value="EXPENSE">지출</option>
+                        <option value="INCOME">수입</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="amount">금액</label>
+                    <input type="number" id="amount" required min="0" step="1000" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label for="category">카테고리</label>
+                    <select id="category" required>
+                        <option value="">먼저 유형을 선택하세요</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="transactionDate">날짜</label>
+                    <input type="date" id="transactionDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">메모</label>
+                    <textarea id="description" rows="3" placeholder="메모를 입력하세요 (선택사항)"></textarea>
+                </div>
+                <button type="submit" class="btn btn-block">거래 추가</button>
+            </form>
+        </div>
+
+        <!-- 차트 분석 페이지 -->
+        <div id="chartsPage" class="content-page">
+            <h2>차트 분석</h2>
+            
+            <!-- 기간 선택 -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3>분석 기간</h3>
+                    <div class="chart-filters">
+                        <button class="filter-btn active" onclick="setChartPeriod('thisMonth')">이번 달</button>
+                        <button class="filter-btn" onclick="setChartPeriod('lastMonth')">지난 달</button>
+                        <button class="filter-btn" onclick="setChartPeriod('last3Months')">최근 3개월</button>
+                        <button class="filter-btn" onclick="setChartPeriod('thisYear')">올해</button>
+                    </div>
+                </div>
+                
+                <div class="summary-cards">
+                    <div class="summary-card">
+                        <h4>총 수입</h4>
+                        <div class="amount income-amount" id="chartTotalIncome">₩0</div>
+                    </div>
+                    <div class="summary-card">
+                        <h4>총 지출</h4>
+                        <div class="amount expense-amount" id="chartTotalExpense">₩0</div>
+                    </div>
+                    <div class="summary-card">
+                        <h4>순 잔액</h4>
+                        <div class="amount balance-amount" id="chartNetAmount">₩0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 카테고리별 지출 분석 -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3>카테고리별 지출 분석</h3>
+                </div>
+                <div id="categoryChart">
+                    <!-- 동적으로 생성됨 -->
+                </div>
+            </div>
+
+            <!-- 월별 트렌드 -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3>월별 수입/지출 트렌드</h3>
+                </div>
+                <div id="monthlyTrend">
+                    <!-- 동적으로 생성됨 -->
+                </div>
+            </div>
+
+            <!-- 일별 지출 패턴 -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3>요일별 지출 패턴</h3>
+                </div>
+                <div id="weeklyPattern">
+                    <!-- 동적으로 생성됨 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 자산 관리 페이지 -->
+        <div id="assetsPage" class="content-page">
+            <h2>자산 관리</h2>
+            
+            <!-- 자산 요약 -->
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <h3>총 자산</h3>
+                    <div class="amount balance-amount" id="totalAssets">₩0</div>
+                </div>
+                <div class="summary-card">
+                    <h3>현금성 자산</h3>
+                    <div class="amount income-amount" id="liquidAssets">₩0</div>
+                </div>
+                <div class="summary-card">
+                    <h3>투자 자산</h3>
+                    <div class="amount" style="color: #9b59b6;" id="investmentAssets">₩0</div>
+                </div>
+                <div class="summary-card">
+                    <h3>부채</h3>
+                    <div class="amount expense-amount" id="totalDebt">₩0</div>
+                </div>
+            </div>
+
+            <!-- 자산 목록 -->
+            <div style="background: white; padding: 30px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                <h3 style="margin-bottom: 20px;">자산 항목별 현황</h3>
+                
+                <div style="margin-bottom: 30px;">
+                    <h4 style="color: #27ae60; margin-bottom: 15px;">💰 현금성 자산</h4>
+                    <div id="cashAssets">
+                        <!-- 동적으로 생성됨 -->
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 30px;">
+                    <h4 style="color: #9b59b6; margin-bottom: 15px;">📈 투자 자산</h4>
+                    <div id="investmentAssetsList">
+                        <!-- 동적으로 생성됨 -->
+                    </div>
+                </div>
+
+                <div>
+                    <h4 style="color: #e74c3c; margin-bottom: 15px;">💳 부채</h4>
+                    <div id="debtList">
+                        <!-- 동적으로 생성됨 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 자산 변동 추이 -->
+            <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                <h3 style="margin-bottom: 20px;">자산 변동 추이</h3>
+                <div id="assetTrend">
+                    <p style="text-align: center; color: #666; padding: 40px;">최근 3개월간 자산 변동을 표시합니다.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 카테고리 관리 페이지 -->
+        <div id="categoriesPage" class="content-page">
+            <h2>카테고리 관리</h2>
+            
+            <!-- 카테고리 추가 폼 -->
+            <div style="background: white; padding: 30px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                <h3 style="margin-bottom: 20px;">새 카테고리 추가</h3>
+                <form id="categoryForm">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <div class="form-group">
+                            <label for="categoryName">카테고리 이름</label>
+                            <input type="text" id="categoryName" required placeholder="예: 카페">
+                        </div>
+                        <div class="form-group">
+                            <label for="categoryType">유형</label>
+                            <select id="categoryType" required>
+                                <option value="">선택하세요</option>
+                                <option value="EXPENSE">지출</option>
+                                <option value="INCOME">수입</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <div class="form-group">
+                            <label for="categoryIcon">아이콘</label>
+                            <select id="categoryIcon" required>
+                                <option value="">선택하세요</option>
+                                <option value="🍽️">🍽️ 음식</option>
+                                <option value="🚗">🚗 교통</option>
+                                <option value="🛒">🛒 쇼핑</option>
+                                <option value="🏥">🏥 의료</option>
+                                <option value="🎬">🎬 문화</option>
+                                <option value="🏠">🏠 주거</option>
+                                <option value="📚">📚 교육</option>
+                                <option value="👕">👕 의류</option>
+                                <option value="📱">📱 통신</option>
+                                <option value="⚡">⚡ 공과금</option>
+                                <option value="💼">💼 업무</option>
+                                <option value="💵">💵 용돈</option>
+                                <option value="📊">📊 투자</option>
+                                <option value="🎁">🎁 선물</option>
+                                <option value="☕">☕ 카페</option>
+                                <option value="🚌">🚌 대중교통</option>
+                                <option value="⛽">⛽ 주유</option>
+                                <option value="💄">💄 미용</option>
+                                <option value="🏋️">🏋️ 운동</option>
+                                <option value="📝">📝 기타</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="categoryColor">색상</label>
+                            <select id="categoryColor" required>
+                                <option value="">선택하세요</option>
+                                <option value="#FF6B6B" style="background: #FF6B6B; color: white;">🔴 빨간색</option>
+                                <option value="#4ECDC4" style="background: #4ECDC4; color: white;">🟢 민트</option>
+                                <option value="#45B7D1" style="background: #45B7D1; color: white;">🔵 파란색</option>
+                                <option value="#96CEB4" style="background: #96CEB4; color: white;">🟢 연두색</option>
+                                <option value="#FFEAA7" style="background: #FFEAA7; color: black;">🟡 노란색</option>
+                                <option value="#FF7675" style="background: #FF7675; color: white;">🟠 주황색</option>
+                                <option value="#6C5CE7" style="background: #6C5CE7; color: white;">🟣 보라색</option>
+                                <option value="#FD79A8" style="background: #FD79A8; color: white;">🩷 분홍색</option>
+                                <option value="#00B894" style="background: #00B894; color: white;">🟢 초록색</option>
+                                <option value="#FDCB6E" style="background: #FDCB6E; color: black;">🟨 골드</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-block">카테고리 추가</button>
+                </form>
+            </div>
+
+            <!-- 카테고리 목록 -->
+            <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                <h3 style="margin-bottom: 20px;">내 카테고리</h3>
+                
+                <!-- 지출 카테고리 -->
+                <div style="margin-bottom: 30px;">
+                    <h4 style="color: #e74c3c; margin-bottom: 15px;">💳 지출 카테고리</h4>
+                    <div id="expenseCategories" class="category-grid">
+                        <!-- 동적으로 생성됨 -->
+                    </div>
+                </div>
+
+                <!-- 수입 카테고리 -->
+                <div>
+                    <h4 style="color: #27ae60; margin-bottom: 15px;">💰 수입 카테고리</h4>
+                    <div id="incomeCategories" class="category-grid">
+                        <!-- 동적으로 생성됨 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 설정 페이지 -->
+        <div id="settingsPage" class="content-page">
+            <h2>설정</h2>
+            
+            <!-- 사용자 정보 -->
+            <div style="background: white; padding: 30px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                <h3 style="margin-bottom: 20px;">사용자 정보</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label>이름</label>
+                        <input type="text" id="settingsName" readonly style="background: #f8f9fa;">
+                    </div>
+                    <div class="form-group">
+                        <label>이메일</label>
+                        <input type="email" id="settingsEmail" readonly style="background: #f8f9fa;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 화폐 설정 -->
+            <div style="background: white; padding: 30px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                <h3 style="margin-bottom: 20px;">화폐 설정</h3>
+                <div class="form-group">
+                    <label for="currency">기본 화폐</label>
+                    <select id="currency">
+                        <option value="KRW">원 (₩)</option>
+                        <option value="USD">달러 ($)</option>
+                        <option value="EUR">유로 (€)</option>
+                        <option value="JPY">엔 (¥)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 알림 설정 -->
+            <div style="background: white; padding: 30px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                <h3 style="margin-bottom: 20px;">알림 설정</h3>
+                <div style="display: grid; gap: 15px;">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" id="dailyNotification">
+                        <span>일일 지출 요약 알림</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" id="budgetAlert">
+                        <span>예산 초과 경고</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" id="weeklyReport">
+                        <span>주간 리포트</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 데이터 관리 -->
+            <div style="background: white; padding: 30px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                <h3 style="margin-bottom: 20px;">데이터 관리</h3>
+                <div style="display: grid; gap: 15px;">
+                    <button class="btn" onclick="exportData()" style="background: #27ae60;">
+                        📊 데이터 내보내기 (CSV)
+                    </button>
+                    <button class="btn" onclick="showImportData()" style="background: #3498db;">
+                        📥 데이터 가져오기
+                    </button>
+                    <button class="btn" onclick="clearAllData()" style="background: #e74c3c;">
+                        🗑️ 모든 데이터 삭제
+                    </button>
+                </div>
+            </div>
+
+            <!-- 앱 정보 -->
+            <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                <h3 style="margin-bottom: 20px;">앱 정보</h3>
+                <div style="color: #666; line-height: 1.6;">
+                    <p><strong>Unble Budget</strong> v1.0.0</p>
+                    <p>개인 가계부 관리 서비스</p>
+                    <p>문의: support@unble.com</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 인증 모달 -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="authTitle">로그인</h3>
+                <button class="close-btn" onclick="closeAuthModal()">&times;</button>
+            </div>
+            
+            <!-- 로그인 폼 -->
+            <form id="loginForm" style="display: none;">
                 <div class="form-group">
                     <label for="loginEmail">이메일</label>
                     <input type="email" id="loginEmail" required>
@@ -293,16 +1055,15 @@
                     <label for="loginPassword">비밀번호</label>
                     <input type="password" id="loginPassword" required>
                 </div>
-                <button type="submit" class="btn">로그인</button>
-                <button type="button" class="btn btn-secondary" onclick="showPage('registerPage')">회원가입</button>
-                <button type="button" class="btn" onclick="window.open('/demo.html', '_blank')" style="background: linear-gradient(45deg, #ff6b6b, #ee5a52); margin-top: 10px;">🎭 서비스 미리보기</button>
-                <button type="button" class="btn" onclick="window.open('/app-info.html', '_blank')" style="background: linear-gradient(45deg, #27ae60, #2ecc71); margin-top: 5px;">📱 앱 정보 보기</button>
+                <button type="submit" class="btn btn-block">로그인</button>
+                <p style="text-align: center; margin-top: 20px;">
+                    계정이 없으신가요? 
+                    <a href="#" onclick="showAuthModal('register'); return false;" style="color: #667eea;">회원가입</a>
+                </p>
             </form>
-        </div>
 
-        <!-- 회원가입 페이지 -->
-        <div id="registerPage" class="page">
-            <form id="registerForm">
+            <!-- 회원가입 폼 -->
+            <form id="registerForm" style="display: none;">
                 <div class="form-group">
                     <label for="registerName">이름</label>
                     <input type="text" id="registerName" required>
@@ -314,175 +1075,612 @@
                 <div class="form-group">
                     <label for="registerPassword">비밀번호</label>
                     <input type="password" id="registerPassword" required minlength="4">
+                    <small style="color: #666; font-size: 12px;">최소 4자 이상</small>
                 </div>
-                <button type="submit" class="btn">회원가입</button>
-                <button type="button" class="btn btn-secondary" onclick="showPage('loginPage')">로그인으로 돌아가기</button>
-                <button type="button" class="btn" onclick="window.open('/demo.html', '_blank')" style="background: linear-gradient(45deg, #ff6b6b, #ee5a52); margin-top: 10px;">🎭 서비스 미리보기</button>
-                <button type="button" class="btn" onclick="window.open('/app-info.html', '_blank')" style="background: linear-gradient(45deg, #27ae60, #2ecc71); margin-top: 5px;">📱 앱 정보 보기</button>
+                <div class="form-group">
+                    <label for="registerPasswordConfirm">비밀번호 확인</label>
+                    <input type="password" id="registerPasswordConfirm" required minlength="4">
+                    <small id="passwordError" style="color: #e74c3c; font-size: 12px; display: none;">비밀번호가 일치하지 않습니다.</small>
+                </div>
+                <button type="submit" class="btn btn-block">회원가입</button>
+                <p style="text-align: center; margin-top: 20px;">
+                    이미 계정이 있으신가요? 
+                    <a href="#" onclick="showAuthModal('login'); return false;" style="color: #667eea;">로그인</a>
+                </p>
             </form>
         </div>
+    </div>
 
-        <!-- 대시보드 페이지 -->
-        <div id="dashboardPage" class="page">
-            <div class="user-info">
-                <h2 id="userName">환영합니다!</h2>
-                <button class="btn btn-secondary btn-small" onclick="logout()">로그아웃</button>
+    <!-- 일별 상세 모달 -->
+    <div id="dayModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalDate">2024년 1월 1일</h3>
+                <button class="close-btn" onclick="closeDayModal()">&times;</button>
             </div>
-
-            <div class="summary-cards">
+            
+            <div class="summary-cards" style="margin-bottom: 20px;">
                 <div class="summary-card">
-                    <h3>이번 달 지출</h3>
-                    <div class="amount expense" id="totalExpense">₩0</div>
+                    <h4>수입</h4>
+                    <div class="amount income-amount" id="modalIncome">₩0</div>
                 </div>
                 <div class="summary-card">
-                    <h3>이번 달 수입</h3>
-                    <div class="amount income" id="totalIncome">₩0</div>
+                    <h4>지출</h4>
+                    <div class="amount expense-amount" id="modalExpense">₩0</div>
                 </div>
             </div>
 
-            <div class="nav-tabs">
-                <div class="nav-tab active" onclick="showTab('transactionsList')">거래 내역</div>
-                <div class="nav-tab" onclick="showTab('addTransaction')">거래 추가</div>
-                <div class="nav-tab" onclick="showTab('chartView')">📊 차트</div>
-                <div class="nav-tab" onclick="showTab('assetManagement')">자산 관리</div>
-                <div id="adminMenus" style="display: none;">
-                    <div class="nav-tab" onclick="window.open('/status.html', '_blank')" style="background: linear-gradient(45deg, #667eea, #764ba2); color: white; border-radius: 10px; margin-left: 10px;">🏥 서비스 상태</div>
-                </div>
-                <div id="superAdminMenu" style="display: none;">
-                    <div class="nav-tab" onclick="window.open('/admin.html', '_blank')" style="background: linear-gradient(45deg, #e74c3c, #c0392b); color: white; border-radius: 10px; margin-left: 10px;">🛠️ 관리자</div>
-                </div>
+            <div id="modalTransactions">
+                <!-- 거래 내역이 여기에 동적으로 추가됨 -->
             </div>
 
-            <!-- 거래 내역 탭 -->
-            <div id="transactionsList" class="tab-content active">
-                <div class="transaction-list" id="transactionList">
-                    <p style="text-align: center; color: #666; padding: 20px;">거래 내역이 없습니다.</p>
-                </div>
-            </div>
-
-            <!-- 거래 추가 탭 -->
-            <div id="addTransaction" class="tab-content hidden">
-                <form id="transactionForm">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="transactionType">유형</label>
-                            <select id="transactionType" required onchange="updateCategoryOptions()">
-                                <option value="">선택하세요</option>
-                                <option value="EXPENSE">지출</option>
-                                <option value="INCOME">수입</option>
-                                <option value="ASSET">자산 이동</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="amount">금액</label>
-                            <input type="number" id="amount" required min="0" step="1">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="category">카테고리</label>
-                            <select id="category">
-                                <option value="">선택하세요</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="transactionDate">날짜</label>
-                            <input type="date" id="transactionDate" required>
-                    <button type="button" onclick="setToday()" style="margin-top: 5px; padding: 8px 16px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 5px; cursor: pointer;">오늘 날짜</button>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="description">설명</label>
-                        <textarea id="description" rows="3" placeholder="거래에 대한 설명을 입력하세요 (선택사항)"></textarea>
-                    </div>
-                    <button type="submit" class="btn">거래 추가</button>
-                </form>
-            </div>
-
-            <!-- 차트 분석 탭 -->
-            <div id="chartView" class="tab-content hidden">
-                <div style="text-align: center; padding: 40px;">
-                    <h3 style="color: #667eea; margin-bottom: 20px;">📊 상세 차트 분석</h3>
-                    <p style="color: #666; margin-bottom: 30px;">거래 데이터를 다양한 차트로 분석해보세요</p>
-                    <button onclick="window.open('/charts.html', '_blank')" 
-                            style="padding: 15px 30px; background: linear-gradient(45deg, #667eea, #764ba2); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.2s;">
-                        차트 페이지 열기 →
-                    </button>
-                </div>
-            </div>
-
-            <!-- 자산 관리 탭 -->
-            <div id="assetManagement" class="tab-content hidden">
-                <div class="summary-cards">
-                    <div class="summary-card">
-                        <h3>총 자산</h3>
-                        <div class="amount" id="totalAssets">₩0</div>
-                    </div>
-                    <div class="summary-card">
-                        <h3>현금성 자산</h3>
-                        <div class="amount" id="liquidAssets">₩0</div>
-                    </div>
-                </div>
-                
-                <div class="asset-list">
-                    <h3>자산별 현황</h3>
-                    <div id="assetBreakdown">
-                        <p style="text-align: center; color: #666; padding: 20px;">자산 정보를 불러오는 중...</p>
-                    </div>
-                </div>
-            </div>
+            <button class="btn btn-block" style="margin-top: 20px;" onclick="addTransactionForDate()">이 날짜에 거래 추가</button>
         </div>
     </div>
 
     <script>
+        // 전역 변수
         const API_BASE = '/api';
         let authToken = localStorage.getItem('authToken');
-        let allCategories = [];
-        let categoriesByType = {
-            INCOME: [],
-            EXPENSE: [],
-            ASSET: []
+        let isGuest = !authToken;
+        let currentDate = new Date();
+        let selectedDate = null;
+        let transactions = [];
+        let categories = {
+            EXPENSE: [
+                { id: 'food', name: '식비', icon: '🍽️' },
+                { id: 'transport', name: '교통비', icon: '🚗' },
+                { id: 'shopping', name: '쇼핑', icon: '🛒' },
+                { id: 'health', name: '의료비', icon: '🏥' },
+                { id: 'culture', name: '문화/여가', icon: '🎬' },
+                { id: 'housing', name: '주거비', icon: '🏠' },
+                { id: 'education', name: '교육비', icon: '📚' },
+                { id: 'etc', name: '기타', icon: '📝' }
+            ],
+            INCOME: [
+                { id: 'salary', name: '급여', icon: '💼' },
+                { id: 'bonus', name: '보너스', icon: '💵' },
+                { id: 'investment', name: '투자수익', icon: '📊' },
+                { id: 'gift', name: '선물/용돈', icon: '🎁' },
+                { id: 'etc', name: '기타', icon: '📝' }
+            ]
         };
 
-        // 페이지 로드 시 토큰 확인
-        if (authToken) {
-            checkAuthStatus();
+        // 초기화
+        window.onload = function() {
+            initializeApp();
+            setToday();
+            renderCalendar();
+            loadData();
+        };
+
+        // 앱 초기화
+        function initializeApp() {
+            if (isGuest) {
+                document.getElementById('guestNotice').style.display = 'flex';
+                document.getElementById('authSection').style.display = 'flex';
+                // 로컬 스토리지에서 데이터 로드
+                loadLocalData();
+            } else {
+                updateAuthUI();
+                // 서버에서 데이터 로드
+                loadServerData();
+            }
         }
 
-        // 오늘 날짜를 기본으로 설정
-        document.getElementById('transactionDate').value = new Date().toISOString().split('T')[0];
+        // 인증 UI 업데이트
+        function updateAuthUI() {
+            const authSection = document.getElementById('authSection');
+            const userName = localStorage.getItem('userName') || '사용자';
+            authSection.innerHTML = `
+                <span style="margin-right: 10px;">${userName}</span>
+                <button class="logout-btn" onclick="logout()">로그아웃</button>
+            `;
+            document.getElementById('guestNotice').style.display = 'none';
+        }
 
-        // 메시지 표시
-        function showMessage(message, type = 'error') {
-            const messageDiv = document.getElementById('message');
-            messageDiv.className = `message ${type}`;
-            messageDiv.textContent = message;
-            messageDiv.style.display = 'block';
-            
-            setTimeout(() => {
-                messageDiv.style.display = 'none';
-            }, 5000);
+        // 사이드바 토글
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
         }
 
         // 페이지 전환
         function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(page => {
+            // 모든 페이지 숨기기
+            document.querySelectorAll('.content-page').forEach(page => {
                 page.classList.remove('active');
             });
-            document.getElementById(pageId).classList.add('active');
+            
+            // 선택한 페이지 표시
+            document.getElementById(pageId + 'Page').classList.add('active');
+            
+            // 네비게이션 아이템 활성화
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // 페이지별 데이터 업데이트
+            switch(pageId) {
+                case 'charts':
+                    updateChartData();
+                    break;
+                case 'assets':
+                    updateAssetData();
+                    break;
+                case 'settings':
+                    loadSettings();
+                    break;
+                case 'categories':
+                    updateCategoryDisplay();
+                    break;
+            }
+            
+            // 사이드바 닫기
+            toggleSidebar();
         }
 
-        // 탭 전환
-        function showTab(tabId) {
-            document.querySelectorAll('.nav-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.add('hidden');
+        // 캘린더 렌더링
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            document.getElementById('currentMonth').textContent = 
+                `${year}년 ${month + 1}월`;
+            
+            const calendarGrid = document.getElementById('calendarGrid');
+            calendarGrid.innerHTML = '';
+            
+            // 요일 헤더
+            const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+            weekdays.forEach(day => {
+                const header = document.createElement('div');
+                header.className = 'calendar-header';
+                header.textContent = day;
+                calendarGrid.appendChild(header);
             });
             
-            event.target.classList.add('active');
-            document.getElementById(tabId).classList.remove('hidden');
+            // 날짜 계산
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const prevLastDay = new Date(year, month, 0);
+            
+            const firstDayOfWeek = firstDay.getDay();
+            const totalDays = lastDay.getDate();
+            const prevTotalDays = prevLastDay.getDate();
+            
+            // 이전 달 날짜
+            for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+                const day = prevTotalDays - i;
+                const dayElement = createDayElement(new Date(year, month - 1, day), true);
+                calendarGrid.appendChild(dayElement);
+            }
+            
+            // 이번 달 날짜
+            for (let day = 1; day <= totalDays; day++) {
+                const date = new Date(year, month, day);
+                const dayElement = createDayElement(date, false);
+                calendarGrid.appendChild(dayElement);
+            }
+            
+            // 다음 달 날짜
+            const remainingCells = 42 - (firstDayOfWeek + totalDays);
+            for (let day = 1; day <= remainingCells; day++) {
+                const dayElement = createDayElement(new Date(year, month + 1, day), true);
+                calendarGrid.appendChild(dayElement);
+            }
+            
+            updateCalendarData();
+        }
+
+        // 날짜 요소 생성
+        function createDayElement(date, isOtherMonth) {
+            const dayElement = document.createElement('div');
+            dayElement.className = 'calendar-day';
+            
+            if (isOtherMonth) {
+                dayElement.classList.add('other-month');
+            }
+            
+            const today = new Date();
+            if (date.toDateString() === today.toDateString()) {
+                dayElement.classList.add('today');
+            }
+            
+            const dayNumber = document.createElement('div');
+            dayNumber.className = 'day-number';
+            dayNumber.textContent = date.getDate();
+            dayElement.appendChild(dayNumber);
+            
+            const daySummary = document.createElement('div');
+            daySummary.className = 'day-summary';
+            daySummary.id = `summary-${date.toISOString().split('T')[0]}`;
+            dayElement.appendChild(daySummary);
+            
+            if (!isOtherMonth) {
+                dayElement.addEventListener('click', () => showDayDetail(date));
+            }
+            
+            return dayElement;
+        }
+
+        // 캘린더 데이터 업데이트
+        function updateCalendarData() {
+            const currentYear = currentDate.getFullYear();
+            const currentMonth = currentDate.getMonth();
+            
+            const monthlyIncome = { total: 0 };
+            const monthlyExpense = { total: 0 };
+            const dailyData = {};
+            
+            console.log('현재 표시 중인 월:', currentYear, currentMonth + 1);
+            console.log('전체 거래 내역:', transactions);
+            
+            transactions.forEach(transaction => {
+                // 날짜 문자열을 직접 파싱 (시간대 문제 해결)
+                const dateParts = transaction.transactionDate.split('-');
+                const transactionYear = parseInt(dateParts[0]);
+                const transactionMonth = parseInt(dateParts[1]) - 1; // JavaScript에서는 월이 0부터 시작
+                
+                const date = transaction.transactionDate;
+                if (!dailyData[date]) {
+                    dailyData[date] = { income: 0, expense: 0 };
+                }
+                
+                const amount = parseFloat(transaction.amount) || 0;
+                
+                if (transaction.transactionType === 'INCOME') {
+                    dailyData[date].income += amount;
+                    
+                    // 현재 표시 중인 월과 같은 경우만 월별 합계에 포함
+                    if (transactionYear === currentYear && transactionMonth === currentMonth) {
+                        monthlyIncome.total += amount;
+                    }
+                } else if (transaction.transactionType === 'EXPENSE') {
+                    dailyData[date].expense += amount;
+                    
+                    // 현재 표시 중인 월과 같은 경우만 월별 합계에 포함
+                    if (transactionYear === currentYear && transactionMonth === currentMonth) {
+                        monthlyExpense.total += amount;
+                    }
+                }
+            });
+            
+            console.log('월별 수입:', monthlyIncome.total);
+            console.log('월별 지출:', monthlyExpense.total);
+            
+            // 월별 요약 업데이트
+            document.getElementById('monthlyIncome').textContent = `₩${monthlyIncome.total.toLocaleString()}`;
+            document.getElementById('monthlyExpense').textContent = `₩${monthlyExpense.total.toLocaleString()}`;
+            document.getElementById('monthlyBalance').textContent = `₩${(monthlyIncome.total - monthlyExpense.total).toLocaleString()}`;
+            
+            // 일별 데이터 표시 (현재 월에 해당하는 날짜만)
+            Object.keys(dailyData).forEach(date => {
+                const dateParts = date.split('-');
+                const dataYear = parseInt(dateParts[0]);
+                const dataMonth = parseInt(dateParts[1]) - 1;
+                
+                // 현재 표시 중인 월의 데이터만 캘린더에 표시
+                if (dataYear === currentYear && dataMonth === currentMonth) {
+                    const summaryElement = document.getElementById(`summary-${date}`);
+                    if (summaryElement) {
+                        const data = dailyData[date];
+                        const net = data.income - data.expense;
+                        
+                        summaryElement.innerHTML = `
+                            ${data.income > 0 ? `<div class="income-amount">+${data.income.toLocaleString()}</div>` : ''}
+                            ${data.expense > 0 ? `<div class="expense-amount">-${data.expense.toLocaleString()}</div>` : ''}
+                        `;
+                        
+                        const dayElement = summaryElement.parentElement;
+                        dayElement.classList.remove('net-positive', 'net-negative');
+                        if (net > 0) {
+                            dayElement.classList.add('net-positive');
+                        } else if (net < 0) {
+                            dayElement.classList.add('net-negative');
+                        }
+                    }
+                }
+            });
+        }
+
+        // 데이터 로드
+        function loadData() {
+            if (isGuest) {
+                loadLocalData();
+            } else {
+                loadServerData();
+            }
+        }
+
+        // 로컬 데이터 로드
+        function loadLocalData() {
+            const savedTransactions = localStorage.getItem('guestTransactions');
+            if (savedTransactions) {
+                transactions = JSON.parse(savedTransactions);
+            }
+            
+            const savedCategories = localStorage.getItem('guestCategories');
+            if (savedCategories) {
+                const localCategories = JSON.parse(savedCategories);
+                categories.EXPENSE = localCategories.EXPENSE || categories.EXPENSE;
+                categories.INCOME = localCategories.INCOME || categories.INCOME;
+            }
+            
+            updateCalendarData();
+            updateTransactionList();
+            updateCategoryDisplay();
+        }
+
+        // 서버 데이터 로드
+        async function loadServerData() {
+            try {
+                // 먼저 카테고리 로드
+                const categoryResponse = await fetch(`${API_BASE}/categories`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (categoryResponse.ok) {
+                    const serverCategories = await categoryResponse.json();
+                    // 서버 카테고리로 업데이트
+                    categories.EXPENSE = serverCategories.filter(c => c.categoryType === 'EXPENSE');
+                    categories.INCOME = serverCategories.filter(c => c.categoryType === 'INCOME');
+                }
+                
+                // 거래 내역 로드
+                const response = await fetch(`${API_BASE}/transactions`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (response.ok) {
+                    transactions = await response.json();
+                    updateCalendarData();
+                    updateTransactionList();
+                    updateCategoryDisplay();
+                }
+            } catch (error) {
+                console.error('데이터 로드 실패:', error);
+            }
+        }
+
+        // 거래 추가
+        document.getElementById('transactionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                transactionType: document.getElementById('transactionType').value,
+                amount: parseInt(document.getElementById('amount').value),
+                category: document.getElementById('category').value,
+                transactionDate: document.getElementById('transactionDate').value,
+                description: document.getElementById('description').value
+            };
+            
+            if (isGuest) {
+                // 비회원은 로컬 스토리지에만 저장
+                const newTransaction = {
+                    ...formData,
+                    id: Date.now(),
+                    category: categories[formData.transactionType].find(c => c.id === formData.category)
+                };
+                transactions.push(newTransaction);
+                localStorage.setItem('guestTransactions', JSON.stringify(transactions));
+                
+                alert('거래가 추가되었습니다! (로컬 저장)');
+                document.getElementById('transactionForm').reset();
+                setToday();
+                loadData();
+                showPage('calendar');
+            } else {
+                // 회원은 서버 DB에 저장 (계정별로 분리)
+                try {
+                    console.log('거래 추가 요청 데이터:', formData);
+                    console.log('사용 가능한 카테고리:', categories);
+                    
+                    // 카테고리 ID 찾기
+                    let categoryId = null;
+                    if (formData.category) {
+                        const selectedCategory = categories[formData.transactionType]?.find(c => 
+                            c.id.toString() === formData.category.toString()
+                        );
+                        categoryId = selectedCategory ? selectedCategory.id : null;
+                        console.log('선택된 카테고리:', selectedCategory);
+                    }
+                    
+                    const serverData = {
+                        transactionType: formData.transactionType,
+                        amount: formData.amount,
+                        categoryId: categoryId,
+                        transactionDate: formData.transactionDate,
+                        description: formData.description || ''
+                    };
+                    
+                    console.log('서버로 전송할 데이터:', serverData);
+                    
+                    const response = await fetch(`${API_BASE}/transactions`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`
+                        },
+                        body: JSON.stringify(serverData)
+                    });
+                    
+                    console.log('서버 응답 상태:', response.status);
+                    
+                    const responseData = await response.json();
+                    console.log('서버 응답 데이터:', responseData);
+                    
+                    if (response.ok) {
+                        alert('거래가 추가되었습니다!');
+                        document.getElementById('transactionForm').reset();
+                        setToday();
+                        await loadData();
+                        showPage('calendar');
+                    } else {
+                        alert('서버 오류: ' + (responseData.message || '거래 추가에 실패했습니다.'));
+                    }
+                } catch (error) {
+                    console.error('거래 추가 오류:', error);
+                    alert('네트워크 오류: ' + error.message);
+                }
+            }
+        });
+
+        // 카테고리 옵션 업데이트
+        function updateCategoryOptions() {
+            const type = document.getElementById('transactionType').value;
+            const categorySelect = document.getElementById('category');
+            
+            categorySelect.innerHTML = '<option value="">선택하세요</option>';
+            
+            if (type && categories[type]) {
+                categories[type].forEach(category => {
+                    const option = document.createElement('option');
+                    // 비회원: id 문자열, 회원: 서버 ID 숫자
+                    option.value = isGuest ? category.id : category.id.toString();
+                    option.textContent = `${category.icon || ''} ${category.name}`;
+                    categorySelect.appendChild(option);
+                });
+            }
+        }
+
+        // 거래 내역 업데이트
+        function updateTransactionList() {
+            const transactionList = document.getElementById('transactionList');
+            
+            if (transactions.length === 0) {
+                transactionList.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">거래 내역이 없습니다.</p>';
+                return;
+            }
+            
+            const sortedTransactions = [...transactions].sort((a, b) => 
+                new Date(b.transactionDate) - new Date(a.transactionDate)
+            );
+            
+            transactionList.innerHTML = sortedTransactions.map(transaction => {
+                const category = transaction.category || { name: '기타', icon: '📝' };
+                const amountClass = transaction.transactionType === 'EXPENSE' ? 'expense-amount' : 'income-amount';
+                const amountSign = transaction.transactionType === 'EXPENSE' ? '-' : '+';
+                
+                return `
+                    <div class="transaction-item">
+                        <div>
+                            <strong>${category.icon} ${category.name}</strong>
+                            <div style="color: #666; font-size: 0.9em;">
+                                ${transaction.description || '메모 없음'} • ${transaction.transactionDate}
+                            </div>
+                        </div>
+                        <div class="${amountClass}" style="font-weight: 600;">
+                            ${amountSign}₩${transaction.amount.toLocaleString()}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 일별 상세 보기
+        function showDayDetail(date) {
+            selectedDate = date;
+            // 로컬 시간대로 날짜 포맷팅
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const dateStr = `${year}-${month}-${day}`;
+            
+            console.log('선택된 날짜:', dateStr);
+            console.log('해당 날짜 거래 찾는 중...');
+            
+            const dayTransactions = transactions.filter(t => {
+                console.log('거래 날짜:', t.transactionDate, '비교:', dateStr, '일치:', t.transactionDate === dateStr);
+                return t.transactionDate === dateStr;
+            });
+            const dayIncome = dayTransactions.filter(t => t.transactionType === 'INCOME')
+                .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            const dayExpense = dayTransactions.filter(t => t.transactionType === 'EXPENSE')
+                .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            
+            document.getElementById('modalDate').textContent = 
+                `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
+            document.getElementById('modalIncome').textContent = `₩${dayIncome.toLocaleString()}`;
+            document.getElementById('modalExpense').textContent = `₩${dayExpense.toLocaleString()}`;
+            
+            const modalTransactions = document.getElementById('modalTransactions');
+            if (dayTransactions.length === 0) {
+                modalTransactions.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">거래 내역이 없습니다.</p>';
+            } else {
+                modalTransactions.innerHTML = '<h4 style="margin-bottom: 15px;">거래 내역</h4>' + 
+                    dayTransactions.map(transaction => {
+                        const category = transaction.category || { name: '기타', icon: '📝' };
+                        const amountClass = transaction.transactionType === 'EXPENSE' ? 'expense-amount' : 'income-amount';
+                        const amountSign = transaction.transactionType === 'EXPENSE' ? '-' : '+';
+                        
+                        return `
+                            <div class="transaction-item">
+                                <div>
+                                    <strong>${category.icon} ${category.name}</strong>
+                                    <div style="color: #666; font-size: 0.9em;">
+                                        ${transaction.description || '메모 없음'}
+                                    </div>
+                                </div>
+                                <div class="${amountClass}" style="font-weight: 600;">
+                                    ${amountSign}₩${transaction.amount.toLocaleString()}
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+            }
+            
+            document.getElementById('dayModal').classList.add('active');
+        }
+
+        // 선택한 날짜에 거래 추가
+        function addTransactionForDate() {
+            if (selectedDate) {
+                // 로컬 시간대로 날짜 포맷팅
+                const year = selectedDate.getFullYear();
+                const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+                const day = String(selectedDate.getDate()).padStart(2, '0');
+                const dateStr = `${year}-${month}-${day}`;
+                
+                document.getElementById('transactionDate').value = dateStr;
+                closeDayModal();
+                showPage('addTransaction');
+            }
+        }
+
+        // 인증 모달
+        function showAuthModal(type) {
+            const modal = document.getElementById('authModal');
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const title = document.getElementById('authTitle');
+            
+            if (type === 'login') {
+                title.textContent = '로그인';
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+            } else {
+                title.textContent = '회원가입';
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+            }
+            
+            modal.classList.add('active');
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.remove('active');
+        }
+
+        function closeDayModal() {
+            document.getElementById('dayModal').classList.remove('active');
         }
 
         // 로그인
@@ -505,25 +1703,27 @@
                 
                 if (response.ok && data.token) {
                     authToken = data.token;
+                    isGuest = false;
                     localStorage.setItem('authToken', authToken);
                     localStorage.setItem('userName', data.name);
-                    localStorage.setItem('userEmail', data.email);
-                    document.getElementById('userName').textContent = `환영합니다, ${data.name}님!`;
                     
-                    // admin 계정인지 확인하여 관리자 메뉴 표시
-                    if (data.email === 'admin@unble.com') {
-                        document.getElementById('adminMenus').style.display = 'block';
-                        document.getElementById('superAdminMenu').style.display = 'block';
+                    // 게스트 데이터를 서버로 마이그레이션할지 확인
+                    const guestTransactions = localStorage.getItem('guestTransactions');
+                    if (guestTransactions) {
+                        if (confirm('비회원으로 작성한 데이터를 계정으로 이전하시겠습니까?')) {
+                            // TODO: 데이터 마이그레이션 구현
+                        }
+                        localStorage.removeItem('guestTransactions');
                     }
                     
-                    showPage('dashboardPage');
-                    loadDashboardData();
-                    showMessage('로그인 성공!', 'success');
+                    closeAuthModal();
+                    updateAuthUI();
+                    loadServerData();
                 } else {
-                    showMessage(data.message || '로그인에 실패했습니다.');
+                    alert(data.message || '로그인에 실패했습니다.');
                 }
             } catch (error) {
-                showMessage('로그인 중 오류가 발생했습니다.');
+                alert('로그인 중 오류가 발생했습니다.');
             }
         });
 
@@ -534,6 +1734,16 @@
             const name = document.getElementById('registerName').value;
             const email = document.getElementById('registerEmail').value;
             const password = document.getElementById('registerPassword').value;
+            const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
+            
+            // 비밀번호 확인
+            if (password !== passwordConfirm) {
+                document.getElementById('passwordError').style.display = 'block';
+                document.getElementById('registerPasswordConfirm').focus();
+                return;
+            }
+            
+            document.getElementById('passwordError').style.display = 'none';
             
             try {
                 const response = await fetch(`${API_BASE}/auth/register`, {
@@ -548,340 +1758,569 @@
                 
                 if (response.ok && data.token) {
                     authToken = data.token;
+                    isGuest = false;
                     localStorage.setItem('authToken', authToken);
                     localStorage.setItem('userName', data.name);
-                    document.getElementById('userName').textContent = `환영합니다, ${data.name}님!`;
-                    showPage('dashboardPage');
-                    loadDashboardData();
-                    showMessage('회원가입 성공!', 'success');
+                    
+                    closeAuthModal();
+                    updateAuthUI();
+                    loadServerData();
                 } else {
-                    showMessage(data.message || '회원가입에 실패했습니다.');
+                    alert(data.message || '회원가입에 실패했습니다.');
                 }
             } catch (error) {
-                showMessage('회원가입 중 오류가 발생했습니다.');
+                alert('회원가입 중 오류가 발생했습니다.');
             }
         });
-
-        // 거래 추가
-        document.getElementById('transactionForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const formData = {
-                transactionType: document.getElementById('transactionType').value,
-                amount: parseFloat(document.getElementById('amount').value),
-                categoryId: document.getElementById('category').value || null,
-                transactionDate: document.getElementById('transactionDate').value,
-                description: document.getElementById('description').value
-            };
-            
-            // 폼 데이터 검증
-            if (!formData.transactionType) {
-                showMessage('거래 유형을 선택해주세요.');
-                return;
-            }
-            if (!formData.amount || formData.amount <= 0) {
-                showMessage('올바른 금액을 입력해주세요.');
-                return;
-            }
-            if (!formData.transactionDate) {
-                showMessage('거래 날짜를 선택해주세요.');
-                return;
-            }
-
-            console.log('거래 추가 요청:', formData);
-
-            try {
-                const response = await fetch(`${API_BASE}/transactions`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}`
-                    },
-                    body: JSON.stringify(formData)
-                });
-                
-                console.log('응답 상태:', response.status);
-                
-                const data = await response.json();
-                console.log('응답 데이터:', data);
-                
-                if (response.ok) {
-                    showMessage('거래가 추가되었습니다!', 'success');
-                    document.getElementById('transactionForm').reset();
-                    setToday(); // 날짜를 오늘로 리셋
-                    loadDashboardData();
-                    showTab('transactionsList');
-                    document.querySelector('.nav-tab').click();
-                } else {
-                    console.error('서버 오류:', data);
-                    showMessage(data.message || '거래 추가에 실패했습니다.');
-                }
-            } catch (error) {
-                console.error('거래 추가 오류:', error);
-                showMessage('네트워크 오류가 발생했습니다. 다시 시도해주세요.');
-            }
-        });
-
-        // 인증 상태 확인
-        async function checkAuthStatus() {
-            try {
-                const response = await fetch(`${API_BASE}/auth/me`, {
-                    headers: {
-                        'Authorization': `Bearer ${authToken}`
-                    }
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    document.getElementById('userName').textContent = `환영합니다, ${data.name}님!`;
-                    
-                    // admin 계정인지 확인하여 관리자 메뉴 표시
-                    if (data.email === 'admin@unble.com') {
-                        document.getElementById('adminMenus').style.display = 'block';
-                        document.getElementById('superAdminMenu').style.display = 'block';
-                    }
-                    
-                    showPage('dashboardPage');
-                    loadDashboardData();
-                } else {
-                    logout();
-                }
-            } catch (error) {
-                logout();
-            }
-        }
-
-        // 대시보드 데이터 로드
-        async function loadDashboardData() {
-            await Promise.all([
-                loadSummary(),
-                loadCategories(),
-                loadTransactions(),
-                loadAssetSummary()
-            ]);
-        }
-
-        // 월별 요약 로드
-        async function loadSummary() {
-            try {
-                const response = await fetch(`${API_BASE}/transactions/summary`, {
-                    headers: {
-                        'Authorization': `Bearer ${authToken}`
-                    }
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    document.getElementById('totalExpense').textContent = 
-                        `₩${Number(data.totalExpense).toLocaleString()}`;
-                    document.getElementById('totalIncome').textContent = 
-                        `₩${Number(data.totalIncome).toLocaleString()}`;
-                }
-            } catch (error) {
-                console.error('요약 정보 로드 실패:', error);
-            }
-        }
-
-        // 카테고리 로드
-        async function loadCategories() {
-            try {
-                const response = await fetch(`${API_BASE}/categories/grouped`, {
-                    headers: {
-                        'Authorization': `Bearer ${authToken}`
-                    }
-                });
-                
-                if (response.ok) {
-                    const groupedCategories = await response.json();
-                    categoriesByType.INCOME = groupedCategories.INCOME || [];
-                    categoriesByType.EXPENSE = groupedCategories.EXPENSE || [];
-                    categoriesByType.ASSET = groupedCategories.ASSET || [];
-                    
-                    allCategories = [
-                        ...categoriesByType.INCOME,
-                        ...categoriesByType.EXPENSE,
-                        ...categoriesByType.ASSET
-                    ];
-                    
-                    updateCategoryOptions();
-                }
-            } catch (error) {
-                console.error('카테고리 로드 실패:', error);
-            }
-        }
-
-        // 거래 유형에 따라 카테고리 옵션 업데이트
-        function updateCategoryOptions() {
-            const transactionType = document.getElementById('transactionType').value;
-            const categorySelect = document.getElementById('category');
-            
-            categorySelect.innerHTML = '<option value="">선택하세요</option>';
-            
-            if (transactionType && categoriesByType[transactionType]) {
-                categoriesByType[transactionType].forEach(category => {
-                    const option = document.createElement('option');
-                    option.value = category.id;
-                    option.textContent = `${category.icon} ${category.name}`;
-                    categorySelect.appendChild(option);
-                });
-            }
-        }
-
-        // 거래 내역 로드
-        async function loadTransactions() {
-            try {
-                const response = await fetch(`${API_BASE}/transactions`, {
-                    headers: {
-                        'Authorization': `Bearer ${authToken}`
-                    }
-                });
-                
-                if (response.ok) {
-                    const transactions = await response.json();
-                    displayTransactions(transactions);
-                }
-            } catch (error) {
-                console.error('거래 내역 로드 실패:', error);
-            }
-        }
-
-        // 거래 내역 표시
-        function displayTransactions(transactions) {
-            const transactionList = document.getElementById('transactionList');
-            
-            if (transactions.length === 0) {
-                transactionList.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">거래 내역이 없습니다.</p>';
-                return;
-            }
-            
-            transactionList.innerHTML = transactions.map(transaction => {
-                const categoryName = transaction.category ? transaction.category.name : '기타';
-                const categoryIcon = transaction.category ? transaction.category.icon : '📝';
-                const amountClass = transaction.transactionType === 'EXPENSE' ? 'expense' : 'income';
-                const amountSign = transaction.transactionType === 'EXPENSE' ? '-' : '+';
-                
-                return `
-                    <div class="transaction-item">
-                        <div class="transaction-info">
-                            <h4>${categoryIcon} ${categoryName}</h4>
-                            <p>${transaction.description || '설명 없음'} • ${transaction.transactionDate}</p>
-                        </div>
-                        <div class="transaction-amount ${amountClass}">
-                            ${amountSign}₩${Number(transaction.amount).toLocaleString()}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // 자산 요약 로드
-        async function loadAssetSummary() {
-            try {
-                // 자산 카테고리별 거래 내역을 가져와서 잔액 계산
-                const response = await fetch(`${API_BASE}/transactions`, {
-                    headers: {
-                        'Authorization': `Bearer ${authToken}`
-                    }
-                });
-                
-                if (response.ok) {
-                    const transactions = await response.json();
-                    const assetTotals = {};
-                    let totalAssets = 0;
-                    let liquidAssets = 0;
-                    
-                    // 자산 카테고리별 잔액 계산
-                    categoriesByType.ASSET.forEach(category => {
-                        assetTotals[category.name] = 0;
-                    });
-                    
-                    transactions.forEach(transaction => {
-                        if (transaction.category && transaction.category.categoryType === 'ASSET') {
-                            const categoryName = transaction.category.name;
-                            const amount = transaction.transactionType === 'INCOME' ? 
-                                          transaction.amount : -transaction.amount;
-                            assetTotals[categoryName] = (assetTotals[categoryName] || 0) + amount;
-                        }
-                    });
-                    
-                    // 총 자산 및 현금성 자산 계산
-                    Object.entries(assetTotals).forEach(([categoryName, amount]) => {
-                        totalAssets += amount;
-                        if (['현금', '은행예금'].includes(categoryName)) {
-                            liquidAssets += amount;
-                        }
-                    });
-                    
-                    // UI 업데이트
-                    document.getElementById('totalAssets').textContent = `₩${totalAssets.toLocaleString()}`;
-                    document.getElementById('liquidAssets').textContent = `₩${liquidAssets.toLocaleString()}`;
-                    
-                    // 자산별 현황 표시
-                    displayAssetBreakdown(assetTotals);
-                }
-            } catch (error) {
-                console.error('자산 요약 로드 실패:', error);
-            }
-        }
-
-        // 자산별 현황 표시
-        function displayAssetBreakdown(assetTotals) {
-            const assetBreakdown = document.getElementById('assetBreakdown');
-            
-            if (Object.keys(assetTotals).length === 0) {
-                assetBreakdown.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">자산 정보가 없습니다.</p>';
-                return;
-            }
-            
-            assetBreakdown.innerHTML = Object.entries(assetTotals).map(([categoryName, amount]) => {
-                const category = categoriesByType.ASSET.find(cat => cat.name === categoryName);
-                const icon = category ? category.icon : '📝';
-                const color = category ? category.color : '#DDA0DD';
-                const amountClass = amount >= 0 ? 'income' : 'expense';
-                
-                return `
-                    <div class="transaction-item">
-                        <div class="transaction-info">
-                            <h4>${icon} ${categoryName}</h4>
-                            <p>현재 잔액</p>
-                        </div>
-                        <div class="transaction-amount ${amountClass}">
-                            ₩${amount.toLocaleString()}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
 
         // 로그아웃
         function logout() {
             authToken = null;
+            isGuest = true;
             localStorage.removeItem('authToken');
             localStorage.removeItem('userName');
-            localStorage.removeItem('userEmail');
+            transactions = [];
             
-            // 관리자 메뉴 숨기기
-            document.getElementById('adminMenus').style.display = 'none';
-            document.getElementById('superAdminMenu').style.display = 'none';
+            document.getElementById('authSection').innerHTML = `
+                <button class="auth-btn" onclick="showAuthModal('login')">로그인</button>
+                <button class="auth-btn" onclick="showAuthModal('register')">회원가입</button>
+            `;
+            document.getElementById('guestNotice').style.display = 'flex';
             
-            showPage('loginPage');
+            loadLocalData();
+        }
+
+        // 월 이동
+        function previousMonth() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+        }
+
+        function nextMonth() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
         }
 
         // 오늘 날짜 설정
         function setToday() {
             const today = new Date();
-            const formattedDate = today.getFullYear() + '-' + 
-                                String(today.getMonth() + 1).padStart(2, '0') + '-' + 
-                                String(today.getDate()).padStart(2, '0');
-            document.getElementById('transactionDate').value = formattedDate;
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const dateStr = `${year}-${month}-${day}`;
+            document.getElementById('transactionDate').value = dateStr;
         }
-
-        // 페이지 로드 시 오늘 날짜로 초기화
-        document.addEventListener('DOMContentLoaded', function() {
-            if (document.getElementById('transactionDate')) {
-                setToday();
+        
+        // 비밀번호 확인 실시간 검증
+        document.getElementById('registerPasswordConfirm').addEventListener('input', function() {
+            const password = document.getElementById('registerPassword').value;
+            const passwordConfirm = this.value;
+            const errorElement = document.getElementById('passwordError');
+            
+            if (passwordConfirm && password !== passwordConfirm) {
+                errorElement.style.display = 'block';
+                this.style.borderColor = '#e74c3c';
+            } else {
+                errorElement.style.display = 'none';
+                this.style.borderColor = passwordConfirm ? '#27ae60' : '#eee';
             }
         });
+        
+        // 비밀번호 변경 시에도 확인
+        document.getElementById('registerPassword').addEventListener('input', function() {
+            const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
+            if (passwordConfirm) {
+                document.getElementById('registerPasswordConfirm').dispatchEvent(new Event('input'));
+            }
+        });
+
+        // 카테고리 추가
+        document.getElementById('categoryForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const categoryData = {
+                name: document.getElementById('categoryName').value,
+                categoryType: document.getElementById('categoryType').value,
+                icon: document.getElementById('categoryIcon').value,
+                color: document.getElementById('categoryColor').value
+            };
+            
+            if (isGuest) {
+                // 비회원은 로컬 카테고리에 추가
+                const newCategory = {
+                    ...categoryData,
+                    id: 'custom_' + Date.now(),
+                    isDefault: false
+                };
+                
+                categories[categoryData.categoryType].push(newCategory);
+                localStorage.setItem('guestCategories', JSON.stringify(categories));
+                
+                alert('카테고리가 추가되었습니다!');
+                document.getElementById('categoryForm').reset();
+                updateCategoryDisplay();
+            } else {
+                // 회원은 서버에 저장
+                try {
+                    const response = await fetch(`${API_BASE}/categories`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`
+                        },
+                        body: JSON.stringify(categoryData)
+                    });
+                    
+                    if (response.ok) {
+                        alert('카테고리가 추가되었습니다!');
+                        document.getElementById('categoryForm').reset();
+                        loadServerData();
+                        updateCategoryDisplay();
+                    } else {
+                        alert('카테고리 추가에 실패했습니다.');
+                    }
+                } catch (error) {
+                    alert('카테고리 추가 중 오류가 발생했습니다.');
+                }
+            }
+        });
+
+        // 카테고리 표시 업데이트
+        function updateCategoryDisplay() {
+            const expenseContainer = document.getElementById('expenseCategories');
+            const incomeContainer = document.getElementById('incomeCategories');
+            
+            if (expenseContainer) {
+                expenseContainer.innerHTML = categories.EXPENSE.map(category => 
+                    createCategoryItem(category)
+                ).join('');
+            }
+            
+            if (incomeContainer) {
+                incomeContainer.innerHTML = categories.INCOME.map(category => 
+                    createCategoryItem(category)
+                ).join('');
+            }
+        }
+
+        // 카테고리 아이템 생성
+        function createCategoryItem(category) {
+            const canDelete = !category.isDefault && (!isGuest || category.id.startsWith('custom_'));
+            
+            return `
+                <div class="category-item" style="border-color: ${category.color};">
+                    <div class="category-icon" style="background: ${category.color};">
+                        ${category.icon}
+                    </div>
+                    <div class="category-info">
+                        <div class="category-name">${category.name}</div>
+                        <div class="category-type">${category.categoryType === 'EXPENSE' ? '지출' : '수입'}</div>
+                    </div>
+                    ${canDelete ? `<button class="delete-category" onclick="deleteCategory('${category.id}', '${category.categoryType}')">×</button>` : ''}
+                </div>
+            `;
+        }
+
+        // 카테고리 삭제
+        async function deleteCategory(categoryId, categoryType) {
+            if (!confirm('이 카테고리를 삭제하시겠습니까?')) {
+                return;
+            }
+            
+            if (isGuest) {
+                // 비회원은 로컬에서 삭제
+                categories[categoryType] = categories[categoryType].filter(cat => cat.id !== categoryId);
+                localStorage.setItem('guestCategories', JSON.stringify(categories));
+                updateCategoryDisplay();
+                alert('카테고리가 삭제되었습니다.');
+            } else {
+                // 회원은 서버에서 삭제
+                try {
+                    const response = await fetch(`${API_BASE}/categories/${categoryId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${authToken}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        loadServerData();
+                        updateCategoryDisplay();
+                        alert('카테고리가 삭제되었습니다.');
+                    } else {
+                        alert('카테고리 삭제에 실패했습니다.');
+                    }
+                } catch (error) {
+                    alert('카테고리 삭제 중 오류가 발생했습니다.');
+                }
+            }
+        }
+
+        // 차트 분석 관련 함수들
+        let currentChartPeriod = 'thisMonth';
+
+        function setChartPeriod(period) {
+            currentChartPeriod = period;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            updateChartData();
+        }
+
+        function updateChartData() {
+            const filteredTransactions = getFilteredTransactions(currentChartPeriod);
+            updateChartSummary(filteredTransactions);
+            updateCategoryChart(filteredTransactions);
+            updateMonthlyTrend();
+            updateWeeklyPattern(filteredTransactions);
+        }
+
+        function getFilteredTransactions(period) {
+            const now = new Date();
+            let startDate, endDate;
+
+            switch(period) {
+                case 'thisMonth':
+                    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                    endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                    break;
+                case 'lastMonth':
+                    startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                    endDate = new Date(now.getFullYear(), now.getMonth(), 0);
+                    break;
+                case 'last3Months':
+                    startDate = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+                    endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                    break;
+                case 'thisYear':
+                    startDate = new Date(now.getFullYear(), 0, 1);
+                    endDate = new Date(now.getFullYear(), 11, 31);
+                    break;
+            }
+
+            return transactions.filter(t => {
+                const transDate = new Date(t.transactionDate);
+                return transDate >= startDate && transDate <= endDate;
+            });
+        }
+
+        function updateChartSummary(filteredTransactions) {
+            const totalIncome = filteredTransactions
+                .filter(t => t.transactionType === 'INCOME')
+                .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            
+            const totalExpense = filteredTransactions
+                .filter(t => t.transactionType === 'EXPENSE')
+                .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+
+            document.getElementById('chartTotalIncome').textContent = `₩${totalIncome.toLocaleString()}`;
+            document.getElementById('chartTotalExpense').textContent = `₩${totalExpense.toLocaleString()}`;
+            document.getElementById('chartNetAmount').textContent = `₩${(totalIncome - totalExpense).toLocaleString()}`;
+        }
+
+        function updateCategoryChart(filteredTransactions) {
+            const expenseTransactions = filteredTransactions.filter(t => t.transactionType === 'EXPENSE');
+            const categoryTotals = {};
+
+            expenseTransactions.forEach(t => {
+                const categoryName = t.category ? t.category.name : '기타';
+                const categoryColor = t.category ? t.category.color : '#DDA0DD';
+                const categoryIcon = t.category ? t.category.icon : '📝';
+                
+                if (!categoryTotals[categoryName]) {
+                    categoryTotals[categoryName] = { amount: 0, color: categoryColor, icon: categoryIcon };
+                }
+                categoryTotals[categoryName].amount += parseFloat(t.amount);
+            });
+
+            const sortedCategories = Object.entries(categoryTotals)
+                .sort(([,a], [,b]) => b.amount - a.amount);
+
+            const totalExpense = sortedCategories.reduce((sum, [,data]) => sum + data.amount, 0);
+
+            const chartHtml = sortedCategories.map(([name, data]) => {
+                const percentage = totalExpense > 0 ? (data.amount / totalExpense * 100) : 0;
+                return `
+                    <div class="chart-item">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 24px;">${data.icon}</span>
+                            <span>${name}</span>
+                        </div>
+                        <div style="flex: 1; margin: 0 20px;">
+                            <div class="chart-bar">
+                                <div class="chart-fill" style="width: ${percentage}%; background: ${data.color};"></div>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-weight: 600;">₩${data.amount.toLocaleString()}</div>
+                            <div style="font-size: 12px; color: #666;">${percentage.toFixed(1)}%</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('categoryChart').innerHTML = chartHtml || '<p style="text-align: center; color: #666; padding: 40px;">데이터가 없습니다.</p>';
+        }
+
+        function updateMonthlyTrend() {
+            const monthlyData = {};
+            const now = new Date();
+            
+            // 최근 6개월 데이터 준비
+            for (let i = 5; i >= 0; i--) {
+                const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                monthlyData[key] = { income: 0, expense: 0, month: date.getMonth() + 1 };
+            }
+
+            transactions.forEach(t => {
+                const date = new Date(t.transactionDate);
+                const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                
+                if (monthlyData[key]) {
+                    if (t.transactionType === 'INCOME') {
+                        monthlyData[key].income += parseFloat(t.amount);
+                    } else if (t.transactionType === 'EXPENSE') {
+                        monthlyData[key].expense += parseFloat(t.amount);
+                    }
+                }
+            });
+
+            const maxAmount = Math.max(...Object.values(monthlyData).map(d => Math.max(d.income, d.expense)));
+
+            const trendHtml = Object.entries(monthlyData).map(([key, data]) => {
+                const incomePercentage = maxAmount > 0 ? (data.income / maxAmount * 100) : 0;
+                const expensePercentage = maxAmount > 0 ? (data.expense / maxAmount * 100) : 0;
+                
+                return `
+                    <div class="chart-item">
+                        <div style="width: 60px; text-align: center;">
+                            <strong>${data.month}월</strong>
+                        </div>
+                        <div style="flex: 1; margin: 0 20px;">
+                            <div style="margin-bottom: 5px;">
+                                <small style="color: #27ae60;">수입</small>
+                                <div class="chart-bar" style="height: 12px;">
+                                    <div class="chart-fill" style="width: ${incomePercentage}%; background: #27ae60;"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <small style="color: #e74c3c;">지출</small>
+                                <div class="chart-bar" style="height: 12px;">
+                                    <div class="chart-fill" style="width: ${expensePercentage}%; background: #e74c3c;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="text-align: right; font-size: 14px;">
+                            <div style="color: #27ae60;">₩${data.income.toLocaleString()}</div>
+                            <div style="color: #e74c3c;">₩${data.expense.toLocaleString()}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('monthlyTrend').innerHTML = trendHtml;
+        }
+
+        function updateWeeklyPattern(filteredTransactions) {
+            const weeklyData = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+            const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+
+            filteredTransactions
+                .filter(t => t.transactionType === 'EXPENSE')
+                .forEach(t => {
+                    const day = new Date(t.transactionDate).getDay();
+                    weeklyData[day] += parseFloat(t.amount);
+                });
+
+            const maxAmount = Math.max(...Object.values(weeklyData));
+
+            const patternHtml = Object.entries(weeklyData).map(([day, amount]) => {
+                const percentage = maxAmount > 0 ? (amount / maxAmount * 100) : 0;
+                return `
+                    <div class="chart-item">
+                        <div style="width: 40px; text-align: center;">
+                            <strong>${weekdays[day]}</strong>
+                        </div>
+                        <div style="flex: 1; margin: 0 20px;">
+                            <div class="chart-bar">
+                                <div class="chart-fill" style="width: ${percentage}%; background: #667eea;"></div>
+                            </div>
+                        </div>
+                        <div style="text-align: right; font-weight: 600;">
+                            ₩${amount.toLocaleString()}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('weeklyPattern').innerHTML = patternHtml;
+        }
+
+        // 자산 관리 함수들
+        function updateAssetData() {
+            // 자산 카테고리 거래만 필터링
+            const assetTransactions = transactions.filter(t => 
+                t.category && t.category.categoryType === 'ASSET'
+            );
+
+            const assetTotals = {};
+            let totalAssets = 0;
+            let liquidAssets = 0;
+            let investmentAssets = 0;
+            let totalDebt = 0;
+
+            assetTransactions.forEach(t => {
+                const categoryName = t.category.name;
+                const amount = t.transactionType === 'INCOME' ? 
+                              parseFloat(t.amount) : -parseFloat(t.amount);
+                
+                if (!assetTotals[categoryName]) {
+                    assetTotals[categoryName] = {
+                        amount: 0,
+                        icon: t.category.icon,
+                        color: t.category.color
+                    };
+                }
+                assetTotals[categoryName].amount += amount;
+            });
+
+            // 자산 분류
+            Object.entries(assetTotals).forEach(([name, data]) => {
+                totalAssets += data.amount;
+                
+                if (['현금', '은행예금'].includes(name)) {
+                    liquidAssets += data.amount;
+                } else if (['투자', '주식', '펀드'].includes(name)) {
+                    investmentAssets += data.amount;
+                } else if (['카드잔액', '대출'].includes(name) && data.amount < 0) {
+                    totalDebt += Math.abs(data.amount);
+                }
+            });
+
+            // UI 업데이트
+            document.getElementById('totalAssets').textContent = `₩${totalAssets.toLocaleString()}`;
+            document.getElementById('liquidAssets').textContent = `₩${liquidAssets.toLocaleString()}`;
+            document.getElementById('investmentAssets').textContent = `₩${investmentAssets.toLocaleString()}`;
+            document.getElementById('totalDebt').textContent = `₩${totalDebt.toLocaleString()}`;
+
+            // 자산 목록 업데이트
+            updateAssetLists(assetTotals);
+        }
+
+        function updateAssetLists(assetTotals) {
+            const cashAssets = [];
+            const investments = [];
+            const debts = [];
+
+            Object.entries(assetTotals).forEach(([name, data]) => {
+                const item = `
+                    <div class="transaction-item">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 24px;">${data.icon}</span>
+                            <span>${name}</span>
+                        </div>
+                        <div class="amount ${data.amount >= 0 ? 'income-amount' : 'expense-amount'}">
+                            ₩${Math.abs(data.amount).toLocaleString()}
+                        </div>
+                    </div>
+                `;
+
+                if (['현금', '은행예금'].includes(name)) {
+                    cashAssets.push(item);
+                } else if (['투자', '주식', '펀드'].includes(name)) {
+                    investments.push(item);
+                } else if (data.amount < 0) {
+                    debts.push(item);
+                }
+            });
+
+            document.getElementById('cashAssets').innerHTML = 
+                cashAssets.length > 0 ? cashAssets.join('') : '<p style="text-align: center; color: #666; padding: 20px;">현금성 자산이 없습니다.</p>';
+            
+            document.getElementById('investmentAssetsList').innerHTML = 
+                investments.length > 0 ? investments.join('') : '<p style="text-align: center; color: #666; padding: 20px;">투자 자산이 없습니다.</p>';
+            
+            document.getElementById('debtList').innerHTML = 
+                debts.length > 0 ? debts.join('') : '<p style="text-align: center; color: #666; padding: 20px;">부채가 없습니다.</p>';
+        }
+
+        // 설정 관련 함수들
+        function loadSettings() {
+            if (!isGuest) {
+                const userName = localStorage.getItem('userName') || '';
+                const userEmail = localStorage.getItem('userEmail') || '';
+                document.getElementById('settingsName').value = userName;
+                document.getElementById('settingsEmail').value = userEmail;
+            }
+
+            // 설정 로드
+            const currency = localStorage.getItem('currency') || 'KRW';
+            document.getElementById('currency').value = currency;
+
+            const notifications = JSON.parse(localStorage.getItem('notifications') || '{}');
+            document.getElementById('dailyNotification').checked = notifications.daily || false;
+            document.getElementById('budgetAlert').checked = notifications.budget || false;
+            document.getElementById('weeklyReport').checked = notifications.weekly || false;
+        }
+
+        function saveSettings() {
+            const currency = document.getElementById('currency').value;
+            localStorage.setItem('currency', currency);
+
+            const notifications = {
+                daily: document.getElementById('dailyNotification').checked,
+                budget: document.getElementById('budgetAlert').checked,
+                weekly: document.getElementById('weeklyReport').checked
+            };
+            localStorage.setItem('notifications', JSON.stringify(notifications));
+        }
+
+        function exportData() {
+            const csvData = transactions.map(t => [
+                t.transactionDate,
+                t.transactionType,
+                t.category ? t.category.name : '기타',
+                t.amount,
+                t.description || ''
+            ]);
+
+            csvData.unshift(['날짜', '유형', '카테고리', '금액', '설명']);
+
+            const csvContent = csvData.map(row => row.join(',')).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `unble_data_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function showImportData() {
+            alert('데이터 가져오기 기능은 준비 중입니다.');
+        }
+
+        function clearAllData() {
+            if (confirm('모든 데이터를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+                if (isGuest) {
+                    localStorage.removeItem('guestTransactions');
+                    localStorage.removeItem('guestCategories');
+                    transactions = [];
+                    loadLocalData();
+                } else {
+                    alert('회원 데이터 삭제는 고객센터에 문의해주세요.');
+                }
+            }
+        }
+
+        // 모달 외부 클릭 시 닫기
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+            }
+        };
     </script>
 </body>
 </html>

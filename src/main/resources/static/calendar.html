@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unble - 캘린더 뷰</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .month-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .month-navigation button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .month-navigation button:hover {
+            background: #5a6fd8;
+        }
+
+        .month-navigation h2 {
+            font-size: 1.5em;
+            color: #333;
+        }
+
+        .calendar-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+
+        .calendar-header {
+            text-align: center;
+            font-weight: 600;
+            color: #666;
+            padding: 10px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            padding: 10px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-height: 100px;
+        }
+
+        .calendar-day:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102,126,234,0.2);
+        }
+
+        .calendar-day.other-month {
+            opacity: 0.3;
+        }
+
+        .calendar-day.today {
+            background: #f0f4ff;
+            border-color: #667eea;
+        }
+
+        .day-number {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .day-summary {
+            font-size: 0.85em;
+            line-height: 1.3;
+        }
+
+        .income-amount {
+            color: #27ae60;
+            font-weight: 500;
+        }
+
+        .expense-amount {
+            color: #e74c3c;
+            font-weight: 500;
+        }
+
+        .net-positive {
+            background: #e8f8f3;
+            border-color: #27ae60;
+        }
+
+        .net-negative {
+            background: #fee;
+            border-color: #e74c3c;
+        }
+
+        /* 일별 상세 모달 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            color: #333;
+            font-size: 1.3em;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .day-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card h4 {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .amount {
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .transaction-list {
+            margin-top: 20px;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .add-transaction-btn {
+            width: 100%;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .calendar-day {
+                min-height: 80px;
+                padding: 5px;
+                font-size: 0.9em;
+            }
+
+            .day-summary {
+                font-size: 0.75em;
+            }
+
+            .month-navigation {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .month-navigation h2 {
+                width: 100%;
+                text-align: center;
+            }
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #5a6fd8;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .navigation-links {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📅 캘린더 뷰</h1>
+            <div class="user-info">
+                <span id="userName">로딩중...</span>
+                <button class="btn btn-secondary" onclick="window.location.href='/'">대시보드로 돌아가기</button>
+            </div>
+        </div>
+
+        <div class="month-navigation">
+            <button onclick="previousMonth()">◀ 이전 달</button>
+            <h2 id="currentMonth">2024년 1월</h2>
+            <button onclick="nextMonth()">다음 달 ▶</button>
+        </div>
+
+        <div class="calendar-container">
+            <div class="calendar-grid">
+                <!-- 요일 헤더 -->
+                <div class="calendar-header">일</div>
+                <div class="calendar-header">월</div>
+                <div class="calendar-header">화</div>
+                <div class="calendar-header">수</div>
+                <div class="calendar-header">목</div>
+                <div class="calendar-header">금</div>
+                <div class="calendar-header">토</div>
+                <!-- 날짜 셀들이 여기에 동적으로 추가됨 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 일별 상세 모달 -->
+    <div id="dayModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalDate">2024년 1월 1일</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            
+            <div class="day-stats">
+                <div class="stat-card">
+                    <h4>수입</h4>
+                    <div class="amount income-amount" id="modalIncome">₩0</div>
+                </div>
+                <div class="stat-card">
+                    <h4>지출</h4>
+                    <div class="amount expense-amount" id="modalExpense">₩0</div>
+                </div>
+                <div class="stat-card">
+                    <h4>합계</h4>
+                    <div class="amount" id="modalNet">₩0</div>
+                </div>
+            </div>
+
+            <div class="transaction-list" id="modalTransactions">
+                <!-- 거래 내역이 여기에 동적으로 추가됨 -->
+            </div>
+
+            <button class="add-transaction-btn" onclick="addTransactionForDate()">이 날짜에 거래 추가</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        let authToken = localStorage.getItem('authToken');
+        let currentDate = new Date();
+        let selectedDate = null;
+        let monthlyData = {};
+
+        // 페이지 로드 시 초기화
+        window.onload = function() {
+            if (!authToken) {
+                window.location.href = '/';
+                return;
+            }
+            
+            const userName = localStorage.getItem('userName');
+            document.getElementById('userName').textContent = `${userName}님`;
+            
+            renderCalendar();
+            loadMonthData();
+        };
+
+        // 캘린더 렌더링
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            // 월 표시 업데이트
+            document.getElementById('currentMonth').textContent = 
+                `${year}년 ${month + 1}월`;
+            
+            // 캘린더 그리드 초기화
+            const calendarGrid = document.querySelector('.calendar-grid');
+            // 요일 헤더 제외하고 모든 날짜 셀 제거
+            const headers = calendarGrid.querySelectorAll('.calendar-header');
+            calendarGrid.innerHTML = '';
+            headers.forEach(header => calendarGrid.appendChild(header));
+            
+            // 첫 날과 마지막 날 계산
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const prevLastDay = new Date(year, month, 0);
+            
+            const firstDayOfWeek = firstDay.getDay();
+            const totalDays = lastDay.getDate();
+            const prevTotalDays = prevLastDay.getDate();
+            
+            // 이전 달 날짜들
+            for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+                const day = prevTotalDays - i;
+                const dayElement = createDayElement(
+                    new Date(year, month - 1, day), 
+                    true
+                );
+                calendarGrid.appendChild(dayElement);
+            }
+            
+            // 이번 달 날짜들
+            for (let day = 1; day <= totalDays; day++) {
+                const date = new Date(year, month, day);
+                const dayElement = createDayElement(date, false);
+                calendarGrid.appendChild(dayElement);
+            }
+            
+            // 다음 달 날짜들
+            const remainingCells = 42 - (firstDayOfWeek + totalDays);
+            for (let day = 1; day <= remainingCells; day++) {
+                const dayElement = createDayElement(
+                    new Date(year, month + 1, day), 
+                    true
+                );
+                calendarGrid.appendChild(dayElement);
+            }
+        }
+
+        // 날짜 셀 생성
+        function createDayElement(date, isOtherMonth) {
+            const dayElement = document.createElement('div');
+            dayElement.className = 'calendar-day';
+            
+            if (isOtherMonth) {
+                dayElement.classList.add('other-month');
+            }
+            
+            // 오늘 날짜 표시
+            const today = new Date();
+            if (date.toDateString() === today.toDateString()) {
+                dayElement.classList.add('today');
+            }
+            
+            const dayNumber = document.createElement('div');
+            dayNumber.className = 'day-number';
+            dayNumber.textContent = date.getDate();
+            dayElement.appendChild(dayNumber);
+            
+            const daySummary = document.createElement('div');
+            daySummary.className = 'day-summary';
+            daySummary.id = `summary-${date.toISOString().split('T')[0]}`;
+            dayElement.appendChild(daySummary);
+            
+            // 클릭 이벤트
+            dayElement.addEventListener('click', () => {
+                if (!isOtherMonth) {
+                    showDayDetail(date);
+                }
+            });
+            
+            return dayElement;
+        }
+
+        // 월별 데이터 로드
+        async function loadMonthData() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const startDate = new Date(year, month, 1).toISOString().split('T')[0];
+            const endDate = new Date(year, month + 1, 0).toISOString().split('T')[0];
+            
+            try {
+                const response = await fetch(
+                    `${API_BASE}/transactions?startDate=${startDate}&endDate=${endDate}`,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${authToken}`
+                        }
+                    }
+                );
+                
+                if (response.ok) {
+                    const transactions = await response.json();
+                    processMonthlyData(transactions);
+                }
+            } catch (error) {
+                console.error('월별 데이터 로드 실패:', error);
+            }
+        }
+
+        // 월별 데이터 처리
+        function processMonthlyData(transactions) {
+            monthlyData = {};
+            
+            transactions.forEach(transaction => {
+                const date = transaction.transactionDate;
+                if (!monthlyData[date]) {
+                    monthlyData[date] = {
+                        income: 0,
+                        expense: 0,
+                        transactions: []
+                    };
+                }
+                
+                if (transaction.transactionType === 'INCOME') {
+                    monthlyData[date].income += transaction.amount;
+                } else if (transaction.transactionType === 'EXPENSE') {
+                    monthlyData[date].expense += transaction.amount;
+                }
+                
+                monthlyData[date].transactions.push(transaction);
+            });
+            
+            // 캘린더에 데이터 표시
+            updateCalendarWithData();
+        }
+
+        // 캘린더 데이터 업데이트
+        function updateCalendarWithData() {
+            Object.keys(monthlyData).forEach(date => {
+                const summaryElement = document.getElementById(`summary-${date}`);
+                if (summaryElement) {
+                    const data = monthlyData[date];
+                    const net = data.income - data.expense;
+                    
+                    summaryElement.innerHTML = `
+                        ${data.income > 0 ? `<div class="income-amount">+${data.income.toLocaleString()}</div>` : ''}
+                        ${data.expense > 0 ? `<div class="expense-amount">-${data.expense.toLocaleString()}</div>` : ''}
+                    `;
+                    
+                    // 셀 색상 변경
+                    const dayElement = summaryElement.parentElement;
+                    if (net > 0) {
+                        dayElement.classList.add('net-positive');
+                    } else if (net < 0) {
+                        dayElement.classList.add('net-negative');
+                    }
+                }
+            });
+        }
+
+        // 일별 상세 보기
+        function showDayDetail(date) {
+            selectedDate = date;
+            const dateStr = date.toISOString().split('T')[0];
+            const data = monthlyData[dateStr] || { income: 0, expense: 0, transactions: [] };
+            
+            // 모달 헤더 업데이트
+            document.getElementById('modalDate').textContent = 
+                `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
+            
+            // 통계 업데이트
+            document.getElementById('modalIncome').textContent = 
+                `₩${data.income.toLocaleString()}`;
+            document.getElementById('modalExpense').textContent = 
+                `₩${data.expense.toLocaleString()}`;
+            document.getElementById('modalNet').textContent = 
+                `₩${(data.income - data.expense).toLocaleString()}`;
+            
+            // 거래 내역 표시
+            const transactionList = document.getElementById('modalTransactions');
+            if (data.transactions.length === 0) {
+                transactionList.innerHTML = 
+                    '<p style="text-align: center; color: #666; padding: 20px;">거래 내역이 없습니다.</p>';
+            } else {
+                transactionList.innerHTML = data.transactions.map(transaction => {
+                    const categoryName = transaction.category ? transaction.category.name : '기타';
+                    const categoryIcon = transaction.category ? transaction.category.icon : '📝';
+                    const amountClass = transaction.transactionType === 'EXPENSE' ? 'expense-amount' : 'income-amount';
+                    const amountSign = transaction.transactionType === 'EXPENSE' ? '-' : '+';
+                    
+                    return `
+                        <div class="transaction-item">
+                            <div>
+                                <strong>${categoryIcon} ${categoryName}</strong>
+                                <div style="color: #666; font-size: 0.9em;">
+                                    ${transaction.description || '설명 없음'}
+                                </div>
+                            </div>
+                            <div class="${amountClass}" style="font-weight: 600;">
+                                ${amountSign}₩${transaction.amount.toLocaleString()}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            // 모달 표시
+            document.getElementById('dayModal').classList.add('active');
+        }
+
+        // 모달 닫기
+        function closeModal() {
+            document.getElementById('dayModal').classList.remove('active');
+        }
+
+        // 이전 달로 이동
+        function previousMonth() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+            loadMonthData();
+        }
+
+        // 다음 달로 이동
+        function nextMonth() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+            loadMonthData();
+        }
+
+        // 선택한 날짜에 거래 추가
+        function addTransactionForDate() {
+            if (selectedDate) {
+                const dateStr = selectedDate.toISOString().split('T')[0];
+                // 메인 페이지로 이동하면서 날짜 정보 전달
+                window.location.href = `/?date=${dateStr}&tab=addTransaction`;
+            }
+        }
+
+        // 모달 외부 클릭 시 닫기
+        window.onclick = function(event) {
+            const modal = document.getElementById('dayModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
+    </script>
+</body>
+</html>

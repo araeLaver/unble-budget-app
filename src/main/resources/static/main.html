@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unble - 스마트 가계부</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* 헤더 */
+        .header {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .logo {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .auth-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .auth-btn {
+            padding: 8px 16px;
+            background: none;
+            border: 1px solid #667eea;
+            color: #667eea;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .auth-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        /* 사이드바 */
+        .sidebar {
+            position: fixed;
+            left: -280px;
+            top: 60px;
+            bottom: 0;
+            width: 280px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            transition: left 0.3s;
+            z-index: 99;
+            overflow-y: auto;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.3);
+            display: none;
+            z-index: 98;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+        }
+
+        .nav-menu {
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-size: 16px;
+        }
+
+        .nav-item:hover {
+            background: #f8f9fa;
+        }
+
+        .nav-item.active {
+            background: #f0f4ff;
+            color: #667eea;
+            border-left: 3px solid #667eea;
+        }
+
+        .nav-icon {
+            margin-right: 15px;
+            font-size: 20px;
+        }
+
+        /* 메인 컨텐츠 */
+        .main-content {
+            margin-top: 60px;
+            padding: 20px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* 월별 요약 카드 */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        .summary-card h3 {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .summary-card .amount {
+            font-size: 1.8em;
+            font-weight: 700;
+        }
+
+        .income-amount { color: #27ae60; }
+        .expense-amount { color: #e74c3c; }
+        .balance-amount { color: #3498db; }
+
+        /* 캘린더 네비게이션 */
+        .calendar-nav {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .calendar-nav button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .calendar-nav button:hover {
+            background: #5a6fd8;
+        }
+
+        .calendar-nav h2 {
+            font-size: 1.5em;
+            color: #333;
+        }
+
+        /* 캘린더 */
+        .calendar-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+
+        .calendar-header {
+            text-align: center;
+            font-weight: 600;
+            color: #666;
+            padding: 10px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-height: 100px;
+            position: relative;
+        }
+
+        .calendar-day:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102,126,234,0.2);
+        }
+
+        .calendar-day.other-month {
+            opacity: 0.3;
+        }
+
+        .calendar-day.today {
+            background: #f0f4ff;
+            border-color: #667eea;
+        }
+
+        .day-number {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .day-summary {
+            font-size: 0.85em;
+            line-height: 1.3;
+        }
+
+        .net-positive {
+            background: #e8f8f3;
+            border-color: #27ae60;
+        }
+
+        .net-negative {
+            background: #fee;
+            border-color: #e74c3c;
+        }
+
+        /* 콘텐츠 페이지 */
+        .content-page {
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .content-page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 모달 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        /* 폼 스타일 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #5a6fd8;
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
+        /* 거래 목록 */
+        .transaction-list {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .calendar-day {
+                min-height: 80px;
+                padding: 5px;
+                font-size: 0.9em;
+            }
+
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .calendar-nav {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .calendar-nav h2 {
+                order: -1;
+            }
+        }
+
+        /* 비회원 알림 */
+        .guest-notice {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .guest-notice button {
+            background: #856404;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 -->
+    <header class="header">
+        <div class="header-left">
+            <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+            <div class="logo">Unble</div>
+        </div>
+        <div class="auth-section" id="authSection">
+            <button class="auth-btn" onclick="showAuthModal('login')">로그인</button>
+            <button class="auth-btn" onclick="showAuthModal('register')">회원가입</button>
+        </div>
+    </header>
+
+    <!-- 사이드바 -->
+    <aside class="sidebar" id="sidebar">
+        <nav class="nav-menu">
+            <button class="nav-item active" onclick="showPage('calendar')">
+                <span class="nav-icon">📅</span>
+                캘린더
+            </button>
+            <button class="nav-item" onclick="showPage('transactions')">
+                <span class="nav-icon">📋</span>
+                거래 내역
+            </button>
+            <button class="nav-item" onclick="showPage('addTransaction')">
+                <span class="nav-icon">➕</span>
+                거래 추가
+            </button>
+            <button class="nav-item" onclick="showPage('charts')">
+                <span class="nav-icon">📊</span>
+                차트 분석
+            </button>
+            <button class="nav-item" onclick="showPage('assets')">
+                <span class="nav-icon">💰</span>
+                자산 관리
+            </button>
+            <button class="nav-item" onclick="showPage('settings')">
+                <span class="nav-icon">⚙️</span>
+                설정
+            </button>
+        </nav>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- 메인 컨텐츠 -->
+    <main class="main-content">
+        <!-- 비회원 알림 -->
+        <div class="guest-notice" id="guestNotice" style="display: none;">
+            <span>📌 비회원 모드로 사용 중입니다. 데이터는 이 기기에만 저장됩니다.</span>
+            <button onclick="showAuthModal('login')">로그인하기</button>
+        </div>
+
+        <!-- 캘린더 페이지 -->
+        <div id="calendarPage" class="content-page active">
+            <!-- 월별 요약 -->
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <h3>이번 달 수입</h3>
+                    <div class="amount income-amount" id="monthlyIncome">₩0</div>
+                </div>
+                <div class="summary-card">
+                    <h3>이번 달 지출</h3>
+                    <div class="amount expense-amount" id="monthlyExpense">₩0</div>
+                </div>
+                <div class="summary-card">
+                    <h3>잔액</h3>
+                    <div class="amount balance-amount" id="monthlyBalance">₩0</div>
+                </div>
+            </div>
+
+            <!-- 캘린더 네비게이션 -->
+            <div class="calendar-nav">
+                <button onclick="previousMonth()">◀ 이전</button>
+                <h2 id="currentMonth">2024년 1월</h2>
+                <button onclick="nextMonth()">다음 ▶</button>
+            </div>
+
+            <!-- 캘린더 -->
+            <div class="calendar-container">
+                <div class="calendar-grid" id="calendarGrid">
+                    <!-- 동적으로 생성됨 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 거래 내역 페이지 -->
+        <div id="transactionsPage" class="content-page">
+            <h2>거래 내역</h2>
+            <div class="transaction-list" id="transactionList">
+                <p style="text-align: center; color: #666; padding: 20px;">거래 내역이 없습니다.</p>
+            </div>
+        </div>
+
+        <!-- 거래 추가 페이지 -->
+        <div id="addTransactionPage" class="content-page">
+            <h2>거래 추가</h2>
+            <form id="transactionForm" style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                <div class="form-group">
+                    <label for="transactionType">유형</label>
+                    <select id="transactionType" required onchange="updateCategoryOptions()">
+                        <option value="">선택하세요</option>
+                        <option value="EXPENSE">지출</option>
+                        <option value="INCOME">수입</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="amount">금액</label>
+                    <input type="number" id="amount" required min="0" step="1000" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label for="category">카테고리</label>
+                    <select id="category" required>
+                        <option value="">먼저 유형을 선택하세요</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="transactionDate">날짜</label>
+                    <input type="date" id="transactionDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">메모</label>
+                    <textarea id="description" rows="3" placeholder="메모를 입력하세요 (선택사항)"></textarea>
+                </div>
+                <button type="submit" class="btn btn-block">거래 추가</button>
+            </form>
+        </div>
+
+        <!-- 차트 분석 페이지 -->
+        <div id="chartsPage" class="content-page">
+            <h2>차트 분석</h2>
+            <div style="background: white; padding: 40px; border-radius: 15px; text-align: center;">
+                <p>차트 기능은 준비 중입니다.</p>
+            </div>
+        </div>
+
+        <!-- 자산 관리 페이지 -->
+        <div id="assetsPage" class="content-page">
+            <h2>자산 관리</h2>
+            <div style="background: white; padding: 40px; border-radius: 15px; text-align: center;">
+                <p>자산 관리 기능은 준비 중입니다.</p>
+            </div>
+        </div>
+
+        <!-- 설정 페이지 -->
+        <div id="settingsPage" class="content-page">
+            <h2>설정</h2>
+            <div style="background: white; padding: 40px; border-radius: 15px; text-align: center;">
+                <p>설정 기능은 준비 중입니다.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- 인증 모달 -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="authTitle">로그인</h3>
+                <button class="close-btn" onclick="closeAuthModal()">&times;</button>
+            </div>
+            
+            <!-- 로그인 폼 -->
+            <form id="loginForm" style="display: none;">
+                <div class="form-group">
+                    <label for="loginEmail">이메일</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">비밀번호</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit" class="btn btn-block">로그인</button>
+                <p style="text-align: center; margin-top: 20px;">
+                    계정이 없으신가요? 
+                    <a href="#" onclick="showAuthModal('register'); return false;" style="color: #667eea;">회원가입</a>
+                </p>
+            </form>
+
+            <!-- 회원가입 폼 -->
+            <form id="registerForm" style="display: none;">
+                <div class="form-group">
+                    <label for="registerName">이름</label>
+                    <input type="text" id="registerName" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">이메일</label>
+                    <input type="email" id="registerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">비밀번호</label>
+                    <input type="password" id="registerPassword" required minlength="4">
+                </div>
+                <button type="submit" class="btn btn-block">회원가입</button>
+                <p style="text-align: center; margin-top: 20px;">
+                    이미 계정이 있으신가요? 
+                    <a href="#" onclick="showAuthModal('login'); return false;" style="color: #667eea;">로그인</a>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- 일별 상세 모달 -->
+    <div id="dayModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalDate">2024년 1월 1일</h3>
+                <button class="close-btn" onclick="closeDayModal()">&times;</button>
+            </div>
+            
+            <div class="summary-cards" style="margin-bottom: 20px;">
+                <div class="summary-card">
+                    <h4>수입</h4>
+                    <div class="amount income-amount" id="modalIncome">₩0</div>
+                </div>
+                <div class="summary-card">
+                    <h4>지출</h4>
+                    <div class="amount expense-amount" id="modalExpense">₩0</div>
+                </div>
+            </div>
+
+            <div id="modalTransactions">
+                <!-- 거래 내역이 여기에 동적으로 추가됨 -->
+            </div>
+
+            <button class="btn btn-block" style="margin-top: 20px;" onclick="addTransactionForDate()">이 날짜에 거래 추가</button>
+        </div>
+    </div>
+
+    <script>
+        // 전역 변수
+        const API_BASE = '/api';
+        let authToken = localStorage.getItem('authToken');
+        let isGuest = !authToken;
+        let currentDate = new Date();
+        let selectedDate = null;
+        let transactions = [];
+        let categories = {
+            EXPENSE: [
+                { id: 'food', name: '식비', icon: '🍽️' },
+                { id: 'transport', name: '교통비', icon: '🚗' },
+                { id: 'shopping', name: '쇼핑', icon: '🛒' },
+                { id: 'health', name: '의료비', icon: '🏥' },
+                { id: 'culture', name: '문화/여가', icon: '🎬' },
+                { id: 'housing', name: '주거비', icon: '🏠' },
+                { id: 'education', name: '교육비', icon: '📚' },
+                { id: 'etc', name: '기타', icon: '📝' }
+            ],
+            INCOME: [
+                { id: 'salary', name: '급여', icon: '💼' },
+                { id: 'bonus', name: '보너스', icon: '💵' },
+                { id: 'investment', name: '투자수익', icon: '📊' },
+                { id: 'gift', name: '선물/용돈', icon: '🎁' },
+                { id: 'etc', name: '기타', icon: '📝' }
+            ]
+        };
+
+        // 초기화
+        window.onload = function() {
+            initializeApp();
+            setToday();
+            renderCalendar();
+            loadData();
+        };
+
+        // 앱 초기화
+        function initializeApp() {
+            if (isGuest) {
+                document.getElementById('guestNotice').style.display = 'flex';
+                document.getElementById('authSection').style.display = 'flex';
+                // 로컬 스토리지에서 데이터 로드
+                loadLocalData();
+            } else {
+                updateAuthUI();
+                // 서버에서 데이터 로드
+                loadServerData();
+            }
+        }
+
+        // 인증 UI 업데이트
+        function updateAuthUI() {
+            const authSection = document.getElementById('authSection');
+            const userName = localStorage.getItem('userName') || '사용자';
+            authSection.innerHTML = `
+                <span style="margin-right: 10px;">${userName}</span>
+                <button class="logout-btn" onclick="logout()">로그아웃</button>
+            `;
+            document.getElementById('guestNotice').style.display = 'none';
+        }
+
+        // 사이드바 토글
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // 페이지 전환
+        function showPage(pageId) {
+            // 모든 페이지 숨기기
+            document.querySelectorAll('.content-page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // 선택한 페이지 표시
+            document.getElementById(pageId + 'Page').classList.add('active');
+            
+            // 네비게이션 아이템 활성화
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // 사이드바 닫기
+            toggleSidebar();
+        }
+
+        // 캘린더 렌더링
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            document.getElementById('currentMonth').textContent = 
+                `${year}년 ${month + 1}월`;
+            
+            const calendarGrid = document.getElementById('calendarGrid');
+            calendarGrid.innerHTML = '';
+            
+            // 요일 헤더
+            const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+            weekdays.forEach(day => {
+                const header = document.createElement('div');
+                header.className = 'calendar-header';
+                header.textContent = day;
+                calendarGrid.appendChild(header);
+            });
+            
+            // 날짜 계산
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const prevLastDay = new Date(year, month, 0);
+            
+            const firstDayOfWeek = firstDay.getDay();
+            const totalDays = lastDay.getDate();
+            const prevTotalDays = prevLastDay.getDate();
+            
+            // 이전 달 날짜
+            for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+                const day = prevTotalDays - i;
+                const dayElement = createDayElement(new Date(year, month - 1, day), true);
+                calendarGrid.appendChild(dayElement);
+            }
+            
+            // 이번 달 날짜
+            for (let day = 1; day <= totalDays; day++) {
+                const date = new Date(year, month, day);
+                const dayElement = createDayElement(date, false);
+                calendarGrid.appendChild(dayElement);
+            }
+            
+            // 다음 달 날짜
+            const remainingCells = 42 - (firstDayOfWeek + totalDays);
+            for (let day = 1; day <= remainingCells; day++) {
+                const dayElement = createDayElement(new Date(year, month + 1, day), true);
+                calendarGrid.appendChild(dayElement);
+            }
+            
+            updateCalendarData();
+        }
+
+        // 날짜 요소 생성
+        function createDayElement(date, isOtherMonth) {
+            const dayElement = document.createElement('div');
+            dayElement.className = 'calendar-day';
+            
+            if (isOtherMonth) {
+                dayElement.classList.add('other-month');
+            }
+            
+            const today = new Date();
+            if (date.toDateString() === today.toDateString()) {
+                dayElement.classList.add('today');
+            }
+            
+            const dayNumber = document.createElement('div');
+            dayNumber.className = 'day-number';
+            dayNumber.textContent = date.getDate();
+            dayElement.appendChild(dayNumber);
+            
+            const daySummary = document.createElement('div');
+            daySummary.className = 'day-summary';
+            daySummary.id = `summary-${date.toISOString().split('T')[0]}`;
+            dayElement.appendChild(daySummary);
+            
+            if (!isOtherMonth) {
+                dayElement.addEventListener('click', () => showDayDetail(date));
+            }
+            
+            return dayElement;
+        }
+
+        // 캘린더 데이터 업데이트
+        function updateCalendarData() {
+            const monthlyIncome = { total: 0 };
+            const monthlyExpense = { total: 0 };
+            const dailyData = {};
+            
+            transactions.forEach(transaction => {
+                const date = transaction.transactionDate;
+                if (!dailyData[date]) {
+                    dailyData[date] = { income: 0, expense: 0 };
+                }
+                
+                if (transaction.transactionType === 'INCOME') {
+                    dailyData[date].income += transaction.amount;
+                    monthlyIncome.total += transaction.amount;
+                } else {
+                    dailyData[date].expense += transaction.amount;
+                    monthlyExpense.total += transaction.amount;
+                }
+            });
+            
+            // 월별 요약 업데이트
+            document.getElementById('monthlyIncome').textContent = `₩${monthlyIncome.total.toLocaleString()}`;
+            document.getElementById('monthlyExpense').textContent = `₩${monthlyExpense.total.toLocaleString()}`;
+            document.getElementById('monthlyBalance').textContent = `₩${(monthlyIncome.total - monthlyExpense.total).toLocaleString()}`;
+            
+            // 일별 데이터 표시
+            Object.keys(dailyData).forEach(date => {
+                const summaryElement = document.getElementById(`summary-${date}`);
+                if (summaryElement) {
+                    const data = dailyData[date];
+                    const net = data.income - data.expense;
+                    
+                    summaryElement.innerHTML = `
+                        ${data.income > 0 ? `<div class="income-amount">+${data.income.toLocaleString()}</div>` : ''}
+                        ${data.expense > 0 ? `<div class="expense-amount">-${data.expense.toLocaleString()}</div>` : ''}
+                    `;
+                    
+                    const dayElement = summaryElement.parentElement;
+                    dayElement.classList.remove('net-positive', 'net-negative');
+                    if (net > 0) {
+                        dayElement.classList.add('net-positive');
+                    } else if (net < 0) {
+                        dayElement.classList.add('net-negative');
+                    }
+                }
+            });
+        }
+
+        // 데이터 로드
+        function loadData() {
+            if (isGuest) {
+                loadLocalData();
+            } else {
+                loadServerData();
+            }
+        }
+
+        // 로컬 데이터 로드
+        function loadLocalData() {
+            const savedTransactions = localStorage.getItem('guestTransactions');
+            if (savedTransactions) {
+                transactions = JSON.parse(savedTransactions);
+            }
+            updateCalendarData();
+            updateTransactionList();
+        }
+
+        // 서버 데이터 로드
+        async function loadServerData() {
+            try {
+                const response = await fetch(`${API_BASE}/transactions`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (response.ok) {
+                    transactions = await response.json();
+                    updateCalendarData();
+                    updateTransactionList();
+                }
+            } catch (error) {
+                console.error('데이터 로드 실패:', error);
+            }
+        }
+
+        // 거래 추가
+        document.getElementById('transactionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                transactionType: document.getElementById('transactionType').value,
+                amount: parseInt(document.getElementById('amount').value),
+                category: document.getElementById('category').value,
+                transactionDate: document.getElementById('transactionDate').value,
+                description: document.getElementById('description').value
+            };
+            
+            if (isGuest) {
+                // 로컬에 저장
+                const newTransaction = {
+                    ...formData,
+                    id: Date.now(),
+                    category: categories[formData.transactionType].find(c => c.id === formData.category)
+                };
+                transactions.push(newTransaction);
+                localStorage.setItem('guestTransactions', JSON.stringify(transactions));
+                
+                alert('거래가 추가되었습니다!');
+                document.getElementById('transactionForm').reset();
+                setToday();
+                loadData();
+                showPage('calendar');
+            } else {
+                // 서버에 저장
+                try {
+                    const response = await fetch(`${API_BASE}/transactions`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`
+                        },
+                        body: JSON.stringify(formData)
+                    });
+                    
+                    if (response.ok) {
+                        alert('거래가 추가되었습니다!');
+                        document.getElementById('transactionForm').reset();
+                        setToday();
+                        loadData();
+                        showPage('calendar');
+                    }
+                } catch (error) {
+                    alert('거래 추가 중 오류가 발생했습니다.');
+                }
+            }
+        });
+
+        // 카테고리 옵션 업데이트
+        function updateCategoryOptions() {
+            const type = document.getElementById('transactionType').value;
+            const categorySelect = document.getElementById('category');
+            
+            categorySelect.innerHTML = '<option value="">선택하세요</option>';
+            
+            if (type && categories[type]) {
+                categories[type].forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.id;
+                    option.textContent = `${category.icon} ${category.name}`;
+                    categorySelect.appendChild(option);
+                });
+            }
+        }
+
+        // 거래 내역 업데이트
+        function updateTransactionList() {
+            const transactionList = document.getElementById('transactionList');
+            
+            if (transactions.length === 0) {
+                transactionList.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">거래 내역이 없습니다.</p>';
+                return;
+            }
+            
+            const sortedTransactions = [...transactions].sort((a, b) => 
+                new Date(b.transactionDate) - new Date(a.transactionDate)
+            );
+            
+            transactionList.innerHTML = sortedTransactions.map(transaction => {
+                const category = transaction.category || { name: '기타', icon: '📝' };
+                const amountClass = transaction.transactionType === 'EXPENSE' ? 'expense-amount' : 'income-amount';
+                const amountSign = transaction.transactionType === 'EXPENSE' ? '-' : '+';
+                
+                return `
+                    <div class="transaction-item">
+                        <div>
+                            <strong>${category.icon} ${category.name}</strong>
+                            <div style="color: #666; font-size: 0.9em;">
+                                ${transaction.description || '메모 없음'} • ${transaction.transactionDate}
+                            </div>
+                        </div>
+                        <div class="${amountClass}" style="font-weight: 600;">
+                            ${amountSign}₩${transaction.amount.toLocaleString()}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 일별 상세 보기
+        function showDayDetail(date) {
+            selectedDate = date;
+            const dateStr = date.toISOString().split('T')[0];
+            
+            const dayTransactions = transactions.filter(t => t.transactionDate === dateStr);
+            const dayIncome = dayTransactions.filter(t => t.transactionType === 'INCOME')
+                .reduce((sum, t) => sum + t.amount, 0);
+            const dayExpense = dayTransactions.filter(t => t.transactionType === 'EXPENSE')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            document.getElementById('modalDate').textContent = 
+                `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
+            document.getElementById('modalIncome').textContent = `₩${dayIncome.toLocaleString()}`;
+            document.getElementById('modalExpense').textContent = `₩${dayExpense.toLocaleString()}`;
+            
+            const modalTransactions = document.getElementById('modalTransactions');
+            if (dayTransactions.length === 0) {
+                modalTransactions.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">거래 내역이 없습니다.</p>';
+            } else {
+                modalTransactions.innerHTML = '<h4 style="margin-bottom: 15px;">거래 내역</h4>' + 
+                    dayTransactions.map(transaction => {
+                        const category = transaction.category || { name: '기타', icon: '📝' };
+                        const amountClass = transaction.transactionType === 'EXPENSE' ? 'expense-amount' : 'income-amount';
+                        const amountSign = transaction.transactionType === 'EXPENSE' ? '-' : '+';
+                        
+                        return `
+                            <div class="transaction-item">
+                                <div>
+                                    <strong>${category.icon} ${category.name}</strong>
+                                    <div style="color: #666; font-size: 0.9em;">
+                                        ${transaction.description || '메모 없음'}
+                                    </div>
+                                </div>
+                                <div class="${amountClass}" style="font-weight: 600;">
+                                    ${amountSign}₩${transaction.amount.toLocaleString()}
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+            }
+            
+            document.getElementById('dayModal').classList.add('active');
+        }
+
+        // 선택한 날짜에 거래 추가
+        function addTransactionForDate() {
+            if (selectedDate) {
+                const dateStr = selectedDate.toISOString().split('T')[0];
+                document.getElementById('transactionDate').value = dateStr;
+                closeDayModal();
+                showPage('addTransaction');
+            }
+        }
+
+        // 인증 모달
+        function showAuthModal(type) {
+            const modal = document.getElementById('authModal');
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const title = document.getElementById('authTitle');
+            
+            if (type === 'login') {
+                title.textContent = '로그인';
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+            } else {
+                title.textContent = '회원가입';
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+            }
+            
+            modal.classList.add('active');
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.remove('active');
+        }
+
+        function closeDayModal() {
+            document.getElementById('dayModal').classList.remove('active');
+        }
+
+        // 로그인
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.token) {
+                    authToken = data.token;
+                    isGuest = false;
+                    localStorage.setItem('authToken', authToken);
+                    localStorage.setItem('userName', data.name);
+                    
+                    // 게스트 데이터를 서버로 마이그레이션할지 확인
+                    const guestTransactions = localStorage.getItem('guestTransactions');
+                    if (guestTransactions) {
+                        if (confirm('비회원으로 작성한 데이터를 계정으로 이전하시겠습니까?')) {
+                            // TODO: 데이터 마이그레이션 구현
+                        }
+                        localStorage.removeItem('guestTransactions');
+                    }
+                    
+                    closeAuthModal();
+                    updateAuthUI();
+                    loadServerData();
+                } else {
+                    alert(data.message || '로그인에 실패했습니다.');
+                }
+            } catch (error) {
+                alert('로그인 중 오류가 발생했습니다.');
+            }
+        });
+
+        // 회원가입
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.token) {
+                    authToken = data.token;
+                    isGuest = false;
+                    localStorage.setItem('authToken', authToken);
+                    localStorage.setItem('userName', data.name);
+                    
+                    closeAuthModal();
+                    updateAuthUI();
+                    loadServerData();
+                } else {
+                    alert(data.message || '회원가입에 실패했습니다.');
+                }
+            } catch (error) {
+                alert('회원가입 중 오류가 발생했습니다.');
+            }
+        });
+
+        // 로그아웃
+        function logout() {
+            authToken = null;
+            isGuest = true;
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userName');
+            transactions = [];
+            
+            document.getElementById('authSection').innerHTML = `
+                <button class="auth-btn" onclick="showAuthModal('login')">로그인</button>
+                <button class="auth-btn" onclick="showAuthModal('register')">회원가입</button>
+            `;
+            document.getElementById('guestNotice').style.display = 'flex';
+            
+            loadLocalData();
+        }
+
+        // 월 이동
+        function previousMonth() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+        }
+
+        function nextMonth() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        }
+
+        // 오늘 날짜 설정
+        function setToday() {
+            document.getElementById('transactionDate').value = new Date().toISOString().split('T')[0];
+        }
+
+        // 모달 외부 클릭 시 닫기
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+            }
+        };
+    </script>
+</body>
+</html>
