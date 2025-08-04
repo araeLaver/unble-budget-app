@@ -36,7 +36,20 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
             jwtToken = requestTokenHeader.substring(7);
             try {
-                username = jwtTokenUtil.getUsernameFromToken(jwtToken);
+                // 토큰이 비어있거나 형식이 잘못된 경우 체크
+                if (jwtToken == null || jwtToken.trim().isEmpty()) {
+                    logger.warn("JWT Token is empty or null");
+                } else {
+                    username = jwtTokenUtil.getUsernameFromToken(jwtToken);
+                }
+            } catch (io.jsonwebtoken.MalformedJwtException e) {
+                logger.warn("JWT Token is malformed: {}", e.getMessage());
+            } catch (io.jsonwebtoken.ExpiredJwtException e) {
+                logger.warn("JWT Token is expired: {}", e.getMessage());
+            } catch (io.jsonwebtoken.UnsupportedJwtException e) {
+                logger.warn("JWT Token is unsupported: {}", e.getMessage());
+            } catch (IllegalArgumentException e) {
+                logger.warn("JWT claims string is empty: {}", e.getMessage());
             } catch (Exception e) {
                 logger.error("Unable to get JWT Token", e);
             }
