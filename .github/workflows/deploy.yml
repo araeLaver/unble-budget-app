@@ -1,0 +1,51 @@
+name: Koyeb 자동 배포
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 코드 체크아웃
+      uses: actions/checkout@v4
+      
+    - name: Java 17 설정
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
+    - name: Maven 캐시 설정
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+        
+    - name: Maven 빌드
+      run: mvn clean compile -DskipTests
+      
+    - name: 테스트 실행
+      run: mvn test
+      
+    - name: JAR 파일 생성
+      run: mvn package -DskipTests
+      
+    - name: 빌드 결과 확인
+      run: ls -la target/
+      
+  deploy-notification:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: 배포 알림
+      run: |
+        echo "✅ 빌드 성공! Koyeb에서 자동 배포가 시작됩니다."
+        echo "🚀 배포 확인: https://app.koyeb.com"
