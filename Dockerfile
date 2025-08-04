@@ -40,5 +40,5 @@ COPY --from=builder /app/app.jar /app.jar
 # Expose port 8080
 EXPOSE 8080
 
-# Run the application optimized for larger instance  
-CMD ["java", "-Xmx200m", "-Xms100m", "-XX:+UseSerialGC", "-XX:MaxMetaspaceSize=128m", "-XX:MetaspaceSize=64m", "-XX:+UseContainerSupport", "-Djava.security.egd=file:/dev/./urandom", "-jar", "app.jar", "--spring.profiles.active=prod"]
+# Run the application optimized for 256MB Koyeb instance
+CMD ["java", "-Xmx180m", "-Xms64m", "-XX:+UseSerialGC", "-XX:MaxMetaspaceSize=96m", "-XX:+UseContainerSupport", "-Djava.security.egd=file:/dev/./urandom", "-jar", "app.jar"]
